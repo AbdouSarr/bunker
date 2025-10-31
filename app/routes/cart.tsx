@@ -7,7 +7,7 @@ import {CartMain} from '~/components/CartMain';
 import type {RootLoader} from '~/root';
 
 export const meta: MetaFunction = () => {
-  return [{title: `Hydrogen | Cart`}];
+  return [{title: `Bunker Studio | Cart`}];
 };
 
 export async function action({request, context}: ActionFunctionArgs) {
@@ -85,12 +85,14 @@ export default function Cart() {
   if (!rootData) return null;
 
   return (
-    <div className="cart">
-      <h1>Cart</h1>
-      <Suspense fallback={<p>Loading cart ...</p>}>
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Cart</h1>
+      </div>
+      <Suspense fallback={<div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div></div>}>
         <Await
           resolve={rootData.cart}
-          errorElement={<div>An error occurred</div>}
+          errorElement={<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">An error occurred loading your cart</div>}
         >
           {(cart) => {
             return <CartMain layout="page" cart={cart} />;

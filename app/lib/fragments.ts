@@ -1,9 +1,61 @@
-// NOTE: https://shopify.dev/docs/api/storefront/latest/queries/cart
-export const CART_QUERY_FRAGMENT = `#graphql
+// Define the TypeScript type for the Product3DData fragment
+export type Product3DDataFragment = {
+  id: string;
+  title: string;
+  handle: string;
+  vendor: string;
+  descriptionHtml: string;
+  variants: {
+    nodes: Array<{
+      id: string;
+      title: string;
+      price: {
+        amount: string;
+        currencyCode: string;
+      };
+      availableForSale: boolean;
+    }>;
+  };
+  mdx_model: {
+    reference: {
+      url?: {value: string};
+      scale?: {value:string};
+      position?: {value: string};
+      rotation?: {value: string};
+    } | null;
+  } | null;
+};
+
+// Existing Money fragment
+export const MONEY_FRAGMENT = `#graphql
   fragment Money on MoneyV2 {
     currencyCode
     amount
   }
+` as const;
+
+// Common metaobject fragment for reusability
+const METAOBJECT_3D_REFERENCE_FRAGMENT = `#graphql
+  fragment Metaobject3DFields on Metaobject {
+    url: field(key: "url") { value }
+    scale: field(key: "scale") { value }
+    position: field(key: "position") { value }
+    rotation: field(key: "rotation") { value }
+  }
+
+  fragment Product3DDataMetafield on Product {
+    mdx_model: metafield(namespace: "custom", key: "mdx_model") {
+      reference {
+        ... on Metaobject {
+          ...Metaobject3DFields
+        }
+      }
+    }
+  }
+`;
+
+// Defines the cart line data, assuming other fragments are present in the query.
+export const CART_LINE_FRAGMENT = `#graphql
   fragment CartLine on CartLine {
     id
     quantity
@@ -40,74 +92,39 @@ export const CART_QUERY_FRAGMENT = `#graphql
           altText
           width
           height
+        }
+        product {
+          handle
+          title
+          id
+          vendor
+          ...Product3DDataMetafield
+        }
+        selectedOptions {
+          name
+          value
+        }
+      }
+    }
+  }
+`;
 
-        }
-        product {
-          handle
-          title
-          id
-          vendor
-        }
-        selectedOptions {
-          name
-          value
-        }
-      }
-    }
-  }
-  fragment CartLineComponent on ComponentizableCartLine {
-    id
-    quantity
-    attributes {
-      key
-      value
-    }
-    cost {
-      totalAmount {
-        ...Money
-      }
-      amountPerQuantity {
-        ...Money
-      }
-      compareAtAmountPerQuantity {
-        ...Money
-      }
-    }
-    merchandise {
-      ... on ProductVariant {
-        id
-        availableForSale
-        compareAtPrice {
-          ...Money
-        }
-        price {
-          ...Money
-        }
-        requiresShipping
-        title
-        image {
-          id
-          url
-          altText
-          width
-          height
-        }
-        product {
-          handle
-          title
-          id
-          vendor
-        }
-        selectedOptions {
-          name
-          value
-        }
-      }
-    }
-  }
+// This is the single, valid query document for the cart.
+// It combines all necessary fragments without duplicates.
+export const CART_QUERY_FRAGMENT = `#graphql
+  ${MONEY_FRAGMENT}
+  ${METAOBJECT_3D_REFERENCE_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+
   fragment CartApiQuery on Cart {
     updatedAt
     id
+    appliedGiftCards {
+      lastCharacters
+      amountUsed {
+        ...Money
+      }
+    }
     checkoutUrl
     totalQuantity
     buyerIdentity {
@@ -125,9 +142,6 @@ export const CART_QUERY_FRAGMENT = `#graphql
     lines(first: $numCartLines) {
       nodes {
         ...CartLine
-      }
-      nodes {
-        ...CartLineComponent
       }
     }
     cost {
@@ -156,7 +170,8 @@ export const CART_QUERY_FRAGMENT = `#graphql
   }
 ` as const;
 
-const MENU_FRAGMENT = `#graphql
+// Menu fragments remain unchanged
+export const MENU_FRAGMENT = `#graphql
   fragment MenuItem on MenuItem {
     id
     resourceId

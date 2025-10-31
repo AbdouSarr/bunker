@@ -14,7 +14,7 @@ import {
 } from '~/lib/search';
 
 export const meta: MetaFunction = () => {
-  return [{title: `Hydrogen | Search`}];
+  return [{title: `Bunker Studio | Search`}];
 };
 
 export async function loader({request, context}: LoaderFunctionArgs) {
