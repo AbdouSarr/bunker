@@ -29,7 +29,7 @@ import { easeOutCubic, easeOutBack } from './utils';
 import type { ProductData, ShopifyProduct, SelectedProduct } from './types';
 import { useAside } from '~/components/Aside';
 
-import { ShoppingCart, Volume2, VolumeX, Save, ArrowLeft, LayoutGrid, Ruler } from 'lucide-react';
+import { ShoppingCart, Volume2, VolumeX, Save, ArrowLeft, LayoutGrid, Ruler } from '~/components/icons';
 
 //================================================================
 // Data Transformation
@@ -196,22 +196,66 @@ const Product: React.FC<ProductProps> = ({
   const slideOffset = useRef(-0.25); // Start 0.5 units below
   const hasStartedAnimation = useRef(false);
   const animationStartTime = useRef<number | null>(null);
+  const meshRefs = useRef<THREE.Mesh[]>([]);
+  const elapsedTime = useRef(0);
 
   const clonedModel = useMemo(() => {
     if (!modelScene) return null;
     const cloned = modelScene.clone(true);
-    cloned.traverse((child: any) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        child.material = child.material.clone();
-        child.material.transparent = true;
-        child.material.opacity = 0;
-        child.material.envMapIntensity = 1;
+    cloned.traverse((child: THREE.Object3D) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        if (mesh.material) {
+          const material = (mesh.material as THREE.Material).clone();
+          material.transparent = true;
+          material.opacity = 0;
+          if ('envMapIntensity' in material) {
+            (material as THREE.MeshStandardMaterial).envMapIntensity = 1;
+          }
+          mesh.material = material;
+        }
       }
     });
     return cloned;
   }, [modelScene]);
+
+  // Cache mesh references once to avoid repeated traversals
+  useEffect(() => {
+    if (clonedModel) {
+      const meshes: THREE.Mesh[] = [];
+      clonedModel.traverse((child: THREE.Object3D) => {
+        if ((child as THREE.Mesh).isMesh) {
+          meshes.push(child as THREE.Mesh);
+        }
+      });
+      meshRefs.current = meshes;
+    }
+  }, [clonedModel]);
+
+  // Cleanup: Dispose of cloned materials and geometries to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (clonedModel) {
+        clonedModel.traverse((child: THREE.Object3D) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            if (mesh.geometry) {
+              mesh.geometry.dispose();
+            }
+            if (mesh.material) {
+              if (Array.isArray(mesh.material)) {
+                mesh.material.forEach((material: THREE.Material) => material.dispose());
+              } else {
+                mesh.material.dispose();
+              }
+            }
+          }
+        });
+      }
+    };
+  }, [clonedModel]);
 
   useFrame((_, delta) => {
     if (!ref.current) return;
@@ -223,15 +267,19 @@ const Product: React.FC<ProductProps> = ({
       const delay = animationIndex * 80; // 80ms between each product (faster)
       setTimeout(() => {
         hasStartedAnimation.current = true;
-        animationStartTime.current = Date.now();
+        elapsedTime.current = 0;
       }, delay);
     }
 
-    // Calculate product fade-in based on time since its animation started
+    // Track elapsed time using delta instead of Date.now()
+    if (hasStartedAnimation.current) {
+      elapsedTime.current += delta * 1000; // Convert to milliseconds
+    }
+
+    // Calculate product fade-in based on elapsed time
     let alpha = 0;
-    if (hasStartedAnimation.current && animationStartTime.current) {
-      const elapsed = Date.now() - animationStartTime.current;
-      alpha = Math.min(elapsed / 300, 1); // 300ms fade-in duration (faster)
+    if (hasStartedAnimation.current) {
+      alpha = Math.min(elapsedTime.current / 300, 1); // 300ms fade-in duration (faster)
     }
 
     // Apply selection-based opacity
@@ -240,15 +288,18 @@ const Product: React.FC<ProductProps> = ({
       finalOpacity = alpha * 0.3; // Fade non-selected products to 30%
     }
 
-    ref.current.traverse((child: any) => {
-      if (child.isMesh && child.material) {
-        child.material.opacity = THREE.MathUtils.lerp(
-          child.material.opacity || 0,
+    // Update opacity using cached mesh references (no traversal needed)
+    // The lerp itself provides smooth transitions without needing early exit
+    for (let i = 0; i < meshRefs.current.length; i++) {
+      const mesh = meshRefs.current[i];
+      if (mesh.material) {
+        mesh.material.opacity = THREE.MathUtils.lerp(
+          mesh.material.opacity || 0,
           finalOpacity,
           0.05 // Smooth transition
         );
       }
-    });
+    }
 
     // Slide up animation
     const targetSlideOffset = alpha > 0.1 ? 0 : -0.25;
@@ -281,7 +332,7 @@ const Product: React.FC<ProductProps> = ({
     });
   }, [data.id, onSelect]);
 
-  const handleClick = (event: any) => {
+  const handleClick = (event: THREE.Event) => {
     event.stopPropagation();
     selectProduct();
   };
@@ -714,7 +765,7 @@ function TopBar({
 
       {/* Right side - Action buttons */}
       <div className="flex gap-2">
-        <button
+        {/* <button
           onClick={onExportScene}
           disabled={isExporting}
           className={`${buttonBaseClasses} w-10 bg-blue-500/70 text-white hover:bg-blue-600/70 disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -725,7 +776,7 @@ function TopBar({
           }}
         >
           <Save size={16} />
-        </button>
+        </button> */}
 
         <button
           onClick={onToggleAudio}

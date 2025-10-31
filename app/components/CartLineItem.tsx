@@ -19,10 +19,16 @@ export function CartLineItem({
   layout: CartLayout;
   line: CartLine;
 }) {
-  const {id, merchandise} = line;
-  const {product, title, image, selectedOptions} = merchandise;
-  const lineItemUrl = useVariantUrl(product.handle, selectedOptions);
+  const {id, merchandise, isOptimistic} = line;
   const {close} = useAside();
+
+  // Check if we have enough data to render
+  const hasData = merchandise?.product?.handle;
+  const product = merchandise?.product;
+  const title = merchandise?.title;
+  const image = merchandise?.image;
+  const selectedOptions = merchandise?.selectedOptions || [];
+  const lineItemUrl = hasData ? useVariantUrl(product.handle, selectedOptions) : '#';
 
   const containerClass =
     layout === 'aside'
@@ -32,10 +38,11 @@ export function CartLineItem({
   return (
     <div key={id} className={containerClass}>
       <div className="flex gap-4">
-        {image && (
-          <div className="flex-shrink-0">
+        {/* Image - show skeleton if loading */}
+        <div className="flex-shrink-0">
+          {image && hasData && !isOptimistic ? (
             <Image
-              alt={title}
+              alt={title || 'Product'}
               aspectRatio="1/1"
               data={image}
               height={layout === 'aside' ? 60 : 80}
@@ -43,25 +50,37 @@ export function CartLineItem({
               width={layout === 'aside' ? 60 : 80}
               className="bg-gray-50 border border-gray-200"
             />
-          </div>
-        )}
+          ) : (
+            <div
+              className={`bg-gray-200 border border-gray-200 animate-pulse ${
+                layout === 'aside' ? 'w-[60px] h-[60px]' : 'w-[80px] h-[80px]'
+              }`}
+            />
+          )}
+        </div>
 
         <div className="flex-1 min-w-0">
           <div className="mb-3">
-            <Link
-              prefetch="intent"
-              to={lineItemUrl}
-              onClick={() => {
-                if (layout === 'aside') {
-                  close();
-                }
-              }}
-              className="text-black hover:text-gray-600 font-medium uppercase tracking-wide block"
-            >
-              {product.title}
-            </Link>
+            {/* Product title - show skeleton if loading */}
+            {product?.title && hasData && !isOptimistic ? (
+              <Link
+                prefetch="intent"
+                to={lineItemUrl}
+                onClick={() => {
+                  if (layout === 'aside') {
+                    close();
+                  }
+                }}
+                className="text-black hover:text-gray-600 font-medium uppercase tracking-wide block"
+              >
+                {product.title}
+              </Link>
+            ) : (
+              <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse" />
+            )}
 
-            {selectedOptions.length > 0 && (
+            {/* Variant options - show skeleton if loading */}
+            {selectedOptions && selectedOptions.length > 0 && hasData && !isOptimistic ? (
               <div className="mt-2 space-y-1">
                 {selectedOptions.map((option) => (
                   <div
@@ -72,17 +91,29 @@ export function CartLineItem({
                   </div>
                 ))}
               </div>
+            ) : (
+              <div className="mt-2">
+                <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse" />
+              </div>
             )}
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <CartLineQuantity line={line} layout={layout} />
-              <div className="text-right">
-                <ProductPrice price={line?.cost?.totalAmount} />
-              </div>
+
+              {/* Price - show skeleton if loading */}
+              {line?.cost?.totalAmount && hasData && !isOptimistic ? (
+                <div className="text-right">
+                  <ProductPrice price={line.cost.totalAmount} />
+                </div>
+              ) : (
+                <div className="text-right">
+                  <div className="h-5 bg-gray-200 rounded w-16 animate-pulse" />
+                </div>
+              )}
             </div>
-            <CartLineRemoveButton lineIds={[id]} disabled={!!line.isOptimistic} />
+            <CartLineRemoveButton lineIds={[id]} disabled={!!isOptimistic} isLoading={isOptimistic} />
           </div>
         </div>
       </div>
@@ -100,7 +131,7 @@ function CartLineQuantity({
   line: CartLine;
   layout: CartLayout;
 }) {
-  if (!line || typeof line?.quantity === 'undefined') return null;
+  if (!line || typeof line?.quantity === 'undefined' || !line.id) return null;
   const {id: lineId, quantity, isOptimistic} = line;
   const prevQuantity = Number(Math.max(0, quantity - 1).toFixed(0));
   const nextQuantity = Number((quantity + 1).toFixed(0));
@@ -131,7 +162,11 @@ function CartLineQuantity({
           </CartLineUpdateButton>
         )}
         <span className="w-12 h-8 flex items-center justify-center text-center border-x border-gray-300 bg-white font-mono text-sm">
-          {quantity.toString().padStart(2, '0')}
+          {isOptimistic ? (
+            <div className="h-4 w-8 bg-gray-200 rounded animate-pulse" />
+          ) : (
+            quantity.toString().padStart(2, '0')
+          )}
         </span>
         <CartLineUpdateButton lines={[{id: lineId, quantity: nextQuantity}]}>
           <button
@@ -153,10 +188,12 @@ function CartLineQuantity({
 function CartLineRemoveButton({
   lineIds,
   disabled,
+  isLoading,
   children,
 }: {
   lineIds: string[];
   disabled: boolean;
+  isLoading?: boolean;
   children?: React.ReactNode;
 }) {
   return (
@@ -166,13 +203,19 @@ function CartLineRemoveButton({
       inputs={{lineIds}}
     >
       {children || (
-        <button
-          disabled={disabled}
-          type="submit"
-          className="text-xs uppercase tracking-wider text-gray-500 hover:text-black disabled:opacity-30 font-mono"
-        >
-          REMOVE
-        </button>
+        <>
+          {isLoading ? (
+            <div className="h-4 bg-gray-200 rounded w-20 animate-pulse" />
+          ) : (
+            <button
+              disabled={disabled}
+              type="submit"
+              className="text-xs uppercase tracking-wider text-gray-500 hover:text-black disabled:opacity-30 font-mono"
+            >
+              REMOVE
+            </button>
+          )}
+        </>
       )}
     </CartForm>
   );

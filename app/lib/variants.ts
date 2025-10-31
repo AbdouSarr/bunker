@@ -13,7 +13,7 @@ export function useVariantUrl(
       handle,
       pathname,
       searchParams: new URLSearchParams(),
-      selectedOptions,
+      selectedOptions: selectedOptions || [],
     });
   }, [handle, selectedOptions, pathname]);
 }
@@ -36,9 +36,13 @@ export function getVariantUrl({
     ? `${match![0]}products/${handle}`
     : `/products/${handle}`;
 
-  selectedOptions.forEach((option) => {
-    searchParams.set(option.name, option.value);
-  });
+  if (selectedOptions && Array.isArray(selectedOptions)) {
+    selectedOptions.forEach((option) => {
+      if (option?.name && option?.value) {
+        searchParams.set(option.name, option.value);
+      }
+    });
+  }
 
   const searchString = searchParams.toString();
 

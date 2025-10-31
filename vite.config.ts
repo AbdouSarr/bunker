@@ -4,6 +4,7 @@ import {netlifyPlugin} from '@netlify/remix-edge-adapter/plugin';
 import {vitePlugin as remix} from '@remix-run/dev';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import tailwindcss from '@tailwindcss/vite';
+import {visualizer} from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   plugins: [
@@ -18,12 +19,31 @@ export default defineConfig({
     }),
     netlifyPlugin(),
     tsconfigPaths(),
-    tailwindcss()
+    tailwindcss(),
+    visualizer({
+      filename: './dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap',
+    }) as any,
   ],
   build: {
     // Allow a strict Content-Security-Policy
     // withtout inlining assets as base64:
     assetsInlineLimit: 0,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split Three.js and related libraries into separate chunks
+          'three': ['three'],
+          'three-fiber': ['@react-three/fiber'],
+          'three-drei': ['@react-three/drei'],
+          // Split vendor code
+          'vendor': ['react', 'react-dom', '@remix-run/react'],
+        },
+      },
+    },
   },
   ssr: {
     optimizeDeps: {

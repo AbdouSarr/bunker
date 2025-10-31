@@ -82,13 +82,11 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
 function CartCheckoutActions({checkoutUrl, layout}: {checkoutUrl?: string; layout?: CartLayout}) {
   if (!checkoutUrl) return null;
 
-  const buttonClass = layout === 'aside'
-    ? "w-full bg-black py-4 px-6 font-mono text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors block text-center"
-    : "w-full bg-black py-4 px-6 font-mono text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors block text-center";
+  const buttonClass = "w-full bg-black py-4 px-6 font-mono text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors block text-center";
 
   return (
-    <a 
-      href={checkoutUrl} 
+    <a
+      href={checkoutUrl}
       target="_self"
       className={buttonClass}
     >
@@ -168,11 +166,11 @@ function CartDiscounts({
 
       <UpdateDiscountForm discountCodes={codes}>
         <div className="flex gap-2 items-center">
-          <input 
-            type="text" 
-            name="discountCode" 
-            placeholder="DISCOUNT CODE" 
-            className="h-full px-3 py- border border-gray-300 text-xs font-mono placeholder-gray-400 focus:outline-none focus:border-black"
+          <input
+            type="text"
+            name="discountCode"
+            placeholder="DISCOUNT CODE"
+            className="h-full px-3 py-3 border border-gray-300 text-xs font-mono placeholder-gray-400 focus:outline-none focus:border-black"
           />
           <button 
             type="submit"

@@ -4,7 +4,7 @@ import {useAside} from '~/components/Aside';
 import type {ShopifyProduct} from './types';
 
 // Updated ProductCard component with real Lucide icons
-import { LayoutGrid, Ruler } from 'lucide-react';
+import { LayoutGrid, Ruler } from '~/components/icons';
 
 // Updated DetailsIcon function
 function DetailsIcon() {
@@ -59,19 +59,6 @@ function ProductCard({product}: ProductCardProps) {
       setTimeout(() => setIsVisible(true), 100);
     }
   }, [product.id, product.handle, variants.nodes, previousProductId]);
-
-  // Debug logging
-  React.useEffect(() => {
-    console.log('ProductCard Debug:', {
-      productId: product.id,
-      title,
-      selectedVariant: selectedVariant?.id,
-      selectedVariantTitle: selectedVariant?.title,
-      firstVariant: firstVariant?.id,
-      availableVariantsCount: availableVariants.length,
-      totalVariantsCount: variants.nodes.length
-    });
-  }, [selectedVariant, product.id]);
 
   const price = selectedVariant?.price;
   const isSoldOut = !selectedVariant || !selectedVariant.availableForSale;
@@ -288,7 +275,19 @@ function ProductCard({product}: ProductCardProps) {
         <AddToCartButton
           lines={
             selectedVariant && selectedVariant.availableForSale
-              ? [{merchandiseId: selectedVariant.id, quantity: 1}]
+              ? [{
+                  merchandiseId: selectedVariant.id,
+                  quantity: 1,
+                  selectedVariant: {
+                    ...selectedVariant,
+                    product: {
+                      id: product.id,
+                      title: product.title,
+                      handle: product.handle,
+                      vendor: product.vendor,
+                    }
+                  }
+                }]
               : []
           }
           disabled={!selectedVariant || !selectedVariant.availableForSale}

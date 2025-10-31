@@ -11,6 +11,7 @@ import {
   isRouteErrorResponse,
   type ShouldRevalidateFunction,
 } from '@remix-run/react';
+import {useEffect} from 'react';
 import favicon from '~/assets/favicon.ico';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
@@ -18,6 +19,7 @@ import tailwindStyles from '~/styles/tailwind.css?url';
 import {PageLayout} from '~/components/PageLayout';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import {checkPasswordProtection} from '~/lib/auth';
+import {initWebVitals} from '~/lib/webVitals';
 
 export type RootLoader = typeof loader;
 
@@ -167,6 +169,11 @@ export function Layout({children}: {children?: React.ReactNode}) {
 }
 
 export default function App() {
+  // Initialize Web Vitals performance tracking on client-side
+  useEffect(() => {
+    initWebVitals();
+  }, []);
+
   return <Outlet />;
 }
 

@@ -1,32 +1,8 @@
 import {defer, type LoaderFunctionArgs} from '@netlify/remix-runtime';
 import {Await, useLoaderData, useRouteLoaderData, Link, type MetaFunction} from '@remix-run/react';
-import {useState, useEffect, lazy, Suspense, Component} from 'react';
+import {useState, useEffect, lazy, Suspense} from 'react';
 import LoadingScreen from '~/components/3D/LoadingScreen';
-
-// Simple Error Boundary component
-class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('3D Component Error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback;
-    }
-
-    return this.props.children;
-  }
-}
-
+import {ThreeDErrorBoundary} from '~/components/ErrorBoundary';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import type {RootLoader} from '~/root';
 
@@ -124,9 +100,11 @@ export default function Homepage() {
         <LoadingScreen onComplete={() => setShowStorefront(true)} />
       )}
       {isClient && showStorefront && (
-        <Suspense fallback={null}>
-          <Storefront shopifyProducts={products} cart={rootData.cart} />
-        </Suspense>
+        <ThreeDErrorBoundary>
+          <Suspense fallback={null}>
+            <Storefront shopifyProducts={products} cart={rootData.cart} />
+          </Suspense>
+        </ThreeDErrorBoundary>
       )}
     </div>
   );

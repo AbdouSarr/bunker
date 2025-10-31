@@ -4,6 +4,7 @@ import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
 import {CartSummary} from './CartSummary';
+import {CartErrorBoundary} from '~/components/ErrorBoundary';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -39,7 +40,9 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
               </h2>
               <div className="space-y-4" aria-labelledby="cart-lines">
                 {(cart?.lines?.nodes ?? []).map((line) => (
-                  <CartLineItem key={line.id} line={line} layout={layout} />
+                  <CartErrorBoundary key={line.id}>
+                    <CartLineItem line={line} layout={layout} />
+                  </CartErrorBoundary>
                 ))}
               </div>
             </div>
