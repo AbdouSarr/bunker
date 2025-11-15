@@ -51,7 +51,7 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
             <img
               src={imageNodes[currentImageIndex].url}
               alt={imageNodes[currentImageIndex].altText || title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
             {/* Image Navigation */}
             {hasMultipleImages && (
