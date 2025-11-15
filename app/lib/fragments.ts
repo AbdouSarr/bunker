@@ -5,6 +5,15 @@ export type Product3DDataFragment = {
   handle: string;
   vendor: string;
   descriptionHtml: string;
+  images: {
+    nodes: Array<{
+      id: string;
+      url: string;
+      altText: string | null;
+      width: number | null;
+      height: number | null;
+    }>;
+  };
   variants: {
     nodes: Array<{
       id: string;

@@ -323,6 +323,11 @@ export type Product3DDataFragment = Pick<
   StorefrontAPI.Product,
   'id' | 'title' | 'handle' | 'vendor' | 'descriptionHtml'
 > & {
+  images: {
+    nodes: Array<
+      Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>
+    >;
+  };
   variants: {
     nodes: Array<
       Pick<
@@ -357,6 +362,14 @@ export type ProductsQuery = {
         StorefrontAPI.Product,
         'id' | 'title' | 'handle' | 'vendor' | 'descriptionHtml'
       > & {
+        images: {
+          nodes: Array<
+            Pick<
+              StorefrontAPI.Image,
+              'id' | 'url' | 'altText' | 'width' | 'height'
+            >
+          >;
+        };
         variants: {
           nodes: Array<
             Pick<
@@ -1206,7 +1219,7 @@ interface GeneratedQueryTypes {
     return: SitemapQuery;
     variables: SitemapQueryVariables;
   };
-  '#graphql\n  fragment Metaobject3DFields on Metaobject {\n    url: field(key: "url") { value }\n    scale: field(key: "scale") { value }\n    position: field(key: "position") { value }\n    rotation: field(key: "rotation") { value }\n  }\n\n  fragment Product3DData on Product {\n    id\n    title\n    handle\n    vendor\n    descriptionHtml\n    variants(first: 10) {\n      nodes {\n        id\n        title\n        price {\n          amount\n          currencyCode\n        }\n        availableForSale\n      }\n    }\n    mdx_model: metafield(namespace: "custom", key: "mdx_model") {\n      reference {\n        ... on Metaobject {\n          ...Metaobject3DFields\n        }\n      }\n    }\n  }\n\n  query products(\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(country: $country, language: $language) {\n    products(first: 20) {\n      nodes {\n        ...Product3DData\n      }\n    }\n  }\n': {
+  '#graphql\n  fragment Metaobject3DFields on Metaobject {\n    url: field(key: "url") { value }\n    scale: field(key: "scale") { value }\n    position: field(key: "position") { value }\n    rotation: field(key: "rotation") { value }\n  }\n\n  fragment Product3DData on Product {\n    id\n    title\n    handle\n    vendor\n    descriptionHtml\n    images(first: 5) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    variants(first: 10) {\n      nodes {\n        id\n        title\n        price {\n          amount\n          currencyCode\n        }\n        availableForSale\n      }\n    }\n    mdx_model: metafield(namespace: "custom", key: "mdx_model") {\n      reference {\n        ... on Metaobject {\n          ...Metaobject3DFields\n        }\n      }\n    }\n  }\n\n  query products(\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(country: $country, language: $language) {\n    products(first: 100) {\n      nodes {\n        ...Product3DData\n      }\n    }\n  }\n': {
     return: ProductsQuery;
     variables: ProductsQueryVariables;
   };

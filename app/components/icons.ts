@@ -10,4 +10,7 @@ export {
   ArrowLeft,
   LayoutGrid,
   Ruler,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
 } from 'lucide-react';

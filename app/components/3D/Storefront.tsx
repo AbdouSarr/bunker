@@ -29,7 +29,7 @@ import { easeOutCubic, easeOutBack } from './utils';
 import type { ProductData, ShopifyProduct, SelectedProduct } from './types';
 import { useAside } from '~/components/Aside';
 
-import { ShoppingCart, Volume2, VolumeX, Save, ArrowLeft, LayoutGrid, Ruler } from '~/components/icons';
+import { ShoppingCart, Volume2, VolumeX, Save, ArrowLeft, LayoutGrid, Ruler, ChevronDown } from '~/components/icons';
 
 //================================================================
 // Data Transformation
@@ -746,9 +746,10 @@ function TopBar({
   const cartButtonClasses = "backdrop-blur-md rounded-lg h-10 px-3 flex items-center justify-center transition-all duration-300";
 
   return (
-    <div className="fixed top-4 left-4 right-4 z-[999] flex justify-between items-center">
+    <div className="absolute top-4 left-4 right-4 z-50 flex justify-between items-center pointer-events-none">
+      {/* Wrapper for buttons to enable pointer events */}
       {/* Left side - Back button */}
-      <div>
+      <div className="pointer-events-auto">
         {selected && (
           <button
             className={`${buttonBaseClasses} w-10 bg-black/50 text-white hover:bg-black/70`}
@@ -764,7 +765,7 @@ function TopBar({
       </div>
 
       {/* Right side - Action buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 pointer-events-auto">
         {/* <button
           onClick={onExportScene}
           disabled={isExporting}
@@ -965,10 +966,11 @@ export const Storefront: React.FC<StorefrontProps> = ({
 
   return (
     <div
-      className="App w-full h-full fixed inset-0"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      className="App w-full h-full relative overflow-hidden"
+      style={{ touchAction: selected ? 'none' : 'auto' }}
+      onTouchStart={selected ? handleTouchStart : undefined}
+      onTouchMove={selected ? handleTouchMove : undefined}
+      onTouchEnd={selected ? handleTouchEnd : undefined}
     >
       <Suspense>
         <Await resolve={cart}>
@@ -984,11 +986,21 @@ export const Storefront: React.FC<StorefrontProps> = ({
         </Await>
       </Suspense>
 
+      {/* Scroll Down Indicator - only show when no product is selected */}
+      {!selected && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none animate-bounce">
+          <ChevronDown size={32} className="text-white drop-shadow-lg" strokeWidth={2} />
+          <span className="font-mono text-xs uppercase tracking-wider text-white drop-shadow-lg">
+            Scroll Down
+          </span>
+        </div>
+      )}
+
       {selected && selectedShopifyProduct && (
         <>
 
           <div
-            className="product-card-container fixed bottom-0 left-0 right-0 z-50 flex flex-col justify-center pb-safe animate-in slide-in-from-bottom duration-500"
+            className="product-card-container absolute bottom-0 left-0 right-0 z-50 flex flex-col justify-center pb-safe animate-in slide-in-from-bottom duration-500"
             style={{
               animation: 'slideInFromBottom 0.4s ease-out forwards'
             }}
@@ -1032,6 +1044,7 @@ export const Storefront: React.FC<StorefrontProps> = ({
         camera={{ position: [0.0, 0.0, 0.0], fov: isMobile ? 84 : 60 }}
         gl={{ preserveDrawingBuffer: true }}
         className="w-full h-full absolute"
+        style={{ touchAction: selected ? 'none' : 'pan-y' }}
         legacy={false}
       >
         {/* REFACTOR: Pass the worldOffset to the CameraController */}
@@ -1048,6 +1061,7 @@ export const Storefront: React.FC<StorefrontProps> = ({
           worldOffset={worldOffset.toArray() as [number, number, number]}
         />
         <OrbitControls
+          enabled={!isMobile}
           enableZoom={false}
           enablePan={false}
           enableRotate={!selected}

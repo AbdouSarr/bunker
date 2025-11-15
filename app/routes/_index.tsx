@@ -3,6 +3,7 @@ import {Await, useLoaderData, useRouteLoaderData, Link, type MetaFunction} from 
 import {useState, useEffect, lazy, Suspense} from 'react';
 import LoadingScreen from '~/components/3D/LoadingScreen';
 import {ThreeDErrorBoundary} from '~/components/ErrorBoundary';
+import ProductGrid from '~/components/ProductGrid';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import type {RootLoader} from '~/root';
 
@@ -32,6 +33,15 @@ const PRODUCTS_QUERY = `#graphql
     handle
     vendor
     descriptionHtml
+    images(first: 5) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
     variants(first: 10) {
       nodes {
         id
@@ -56,7 +66,7 @@ const PRODUCTS_QUERY = `#graphql
     $country: CountryCode
     $language: LanguageCode
   ) @inContext(country: $country, language: $language) {
-    products(first: 20) {
+    products(first: 100) {
       nodes {
         ...Product3DData
       }
@@ -70,17 +80,21 @@ export async function loader({context}: LoaderFunctionArgs) {
     products: {nodes: Product3DDataFragment[]};
   }>(PRODUCTS_QUERY);
 
-  // Update the filter to look for the URL within the nested metaobject reference
+  // Filter products with 3D data for the 3D scene
   const productsWith3DData = products.nodes.filter(
     (product: Product3DDataFragment) =>
       product.mdx_model?.reference?.url?.value,
   );
 
-  return {products: productsWith3DData};
+  // Return both filtered 3D products and all products for the grid
+  return {
+    products3D: productsWith3DData,
+    allProducts: products.nodes,
+  };
 }
 
 export default function Homepage() {
-  const {products} = useLoaderData<typeof loader>();
+  const {products3D, allProducts} = useLoaderData<typeof loader>();
   const rootData = useRouteLoaderData<RootLoader>('root');
   const [isClient, setIsClient] = useState(false);
   const [showStorefront, setShowStorefront] = useState(false);
@@ -95,16 +109,24 @@ export default function Homepage() {
   }
 
   return (
-    <div className="homepage-container w-screen h-screen overflow-hidden bg-white">
-      {isClient && !showStorefront && (
-        <LoadingScreen onComplete={() => setShowStorefront(true)} />
-      )}
+    <div className="homepage-container w-screen bg-white">
+      {/* 3D Experience Section - Full viewport height */}
+      <div className="relative" style={{ height: '100dvh' }}>
+        {isClient && !showStorefront && (
+          <LoadingScreen onComplete={() => setShowStorefront(true)} />
+        )}
+        {isClient && showStorefront && (
+          <ThreeDErrorBoundary>
+            <Suspense fallback={null}>
+              <Storefront shopifyProducts={products3D} cart={rootData.cart} />
+            </Suspense>
+          </ThreeDErrorBoundary>
+        )}
+      </div>
+
+      {/* Product Grid Section - Scrollable */}
       {isClient && showStorefront && (
-        <ThreeDErrorBoundary>
-          <Suspense fallback={null}>
-            <Storefront shopifyProducts={products} cart={rootData.cart} />
-          </Suspense>
-        </ThreeDErrorBoundary>
+        <ProductGrid products={allProducts} cart={rootData.cart} />
       )}
     </div>
   );
