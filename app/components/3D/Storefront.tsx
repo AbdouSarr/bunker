@@ -991,7 +991,7 @@ export const Storefront: React.FC<StorefrontProps> = ({
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none animate-bounce">
           <ChevronDown size={32} className="text-white drop-shadow-lg" strokeWidth={2} />
           <span className="font-mono text-xs uppercase tracking-wider text-white drop-shadow-lg">
-            Scroll Down
+            Scroll down to see all products
           </span>
         </div>
       )}
