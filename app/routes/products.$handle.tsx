@@ -183,8 +183,8 @@ export default function Product() {
 
       {/* Product Page - Exact Balenciaga Layout */}
       <div className="pt-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-[calc(100vh-5rem)]">
-          {/* Left Column - Full Height Image Gallery */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+          {/* Left Column - Full Height Image Gallery - Exact Balenciaga */}
           <div className="relative bg-white lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)]">
             {/* Save Item Button - Top Right Corner */}
             <button
@@ -199,20 +199,29 @@ export default function Product() {
               />
             </button>
 
-            {/* Main Image Display - Full Body Shots Head to Toe */}
-            <div className="relative w-full h-full bg-white flex items-center justify-center overflow-hidden">
+            {/* Main Image Display - Full Body Shots - No Cutoffs */}
+            <div className="relative w-full h-full bg-white" style={{minHeight: 'calc(100vh - 5rem)'}}>
               {imageNodes.length > 0 ? (
                 <>
-                  {/* Main Image - Shows full product/model head to toe without cropping */}
-                  <div className="w-full h-full flex items-center justify-center p-4">
+                  {/* Main Image Container - Shows complete product/model head to toe */}
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{
+                      paddingTop: imageNodes.length > 1 ? '0' : '0',
+                      paddingBottom: imageNodes.length > 1 ? '80px' : '0',
+                    }}
+                  >
                     <img
                       src={imageNodes[currentImageIndex].url}
                       alt={imageNodes[currentImageIndex].altText || title}
-                      className="w-auto h-auto max-w-full max-h-full object-contain"
+                      className="block"
                       style={{
-                        maxHeight: 'calc(100vh - 8rem)',
                         maxWidth: '100%',
+                        maxHeight: imageNodes.length > 1 ? 'calc(100% - 80px)' : '100%',
+                        width: 'auto',
+                        height: 'auto',
                         objectFit: 'contain',
+                        objectPosition: 'center',
                       }}
                     />
                   </div>
@@ -236,7 +245,7 @@ export default function Product() {
                       </button>
                       
                       {/* Image Counter */}
-                      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-white px-3 py-1.5 text-xs uppercase tracking-wider border border-black z-20">
+                      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-white px-3 py-1.5 text-xs uppercase tracking-wider border border-black z-20">
                         {currentImageIndex + 1} / {imageNodes.length}
                       </div>
                     </>
@@ -287,18 +296,25 @@ export default function Product() {
           {/* Right Column - Product Info - Exact Balenciaga Layout */}
           <div className="bg-white p-6 lg:p-8 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:overflow-y-auto">
             <div className="max-w-md mx-auto lg:mx-0">
-              {/* Product Title - Balenciaga Style */}
+              {/* Product Title - Exact Balenciaga Style */}
               <h1 className="text-xl md:text-2xl font-normal uppercase tracking-wider text-black mb-4 leading-tight">
                 {title}
               </h1>
 
-              {/* Price - Balenciaga Style */}
-              <div className="mb-8">
+              {/* Price - Exact Balenciaga Style */}
+              <div className="mb-6">
                 <ProductPrice
                   price={selectedVariant?.price}
                   compareAtPrice={selectedVariant?.compareAtPrice}
                 />
               </div>
+
+              {/* Product Description Line - Balenciaga Style */}
+              {descriptionHtml && (
+                <div className="mb-6 text-xs uppercase tracking-wider text-black leading-relaxed">
+                  <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
+                </div>
+              )}
 
               {/* Product Form - Size, Color, Add to Cart */}
               <div className="mb-8">
@@ -325,16 +341,6 @@ export default function Product() {
                   </Await>
                 </Suspense>
               </div>
-
-              {/* Description - Balenciaga Style */}
-              {descriptionHtml && (
-                <div className="mt-8 pt-8 border-t border-black">
-                  <div
-                    className="text-xs uppercase tracking-wider text-black leading-relaxed"
-                    dangerouslySetInnerHTML={{__html: descriptionHtml}}
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>
