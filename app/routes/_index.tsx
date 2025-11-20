@@ -34,7 +34,7 @@ const PRODUCTS_QUERY = `#graphql
     handle
     vendor
     descriptionHtml
-    images(first: 5) {
+    images(first: 20) {
       nodes {
         id
         url

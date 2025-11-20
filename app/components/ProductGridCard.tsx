@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Link} from '@remix-run/react';
-import {Bookmark} from '~/components/icons';
+import {Bookmark, ChevronLeft, ChevronRight} from '~/components/icons';
 import type {Product3DDataFragment} from '~/lib/fragments';
 
 interface ProductGridCardProps {
@@ -11,6 +11,7 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
   const {title, handle, images, variants} = product;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Get the first available variant for price
   const availableVariants = variants.nodes.filter(
@@ -28,16 +29,26 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
   const imageNodes = images.nodes;
   const hasMultipleImages = imageNodes.length > 1;
 
-  const handleImageHover = () => {
-    if (hasMultipleImages && currentImageIndex === 0) {
-      setCurrentImageIndex(1);
+  // Auto-cycle through images on hover
+  useEffect(() => {
+    if (isHovered && hasMultipleImages) {
+      const interval = setInterval(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % imageNodes.length);
+      }, 2000); // Change image every 2 seconds
+      return () => clearInterval(interval);
     }
+  }, [isHovered, hasMultipleImages, imageNodes.length]);
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % imageNodes.length);
   };
 
-  const handleImageLeave = () => {
-    if (hasMultipleImages) {
-      setCurrentImageIndex(0);
-    }
+  const prevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + imageNodes.length) % imageNodes.length);
   };
 
   return (
@@ -59,19 +70,65 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
         />
       </button>
 
-      {/* Product Image */}
+      {/* Product Image Gallery - Shows all images */}
       <Link to={`/products/${handle}`} prefetch="intent">
         <div
           className="relative aspect-square bg-white overflow-hidden mb-3"
-          onMouseEnter={handleImageHover}
-          onMouseLeave={handleImageLeave}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => {
+            setIsHovered(false);
+            setCurrentImageIndex(0); // Reset to first image on leave
+          }}
         >
           {imageNodes.length > 0 ? (
-            <img
-              src={imageNodes[currentImageIndex].url}
-              alt={imageNodes[currentImageIndex].altText || title}
-              className="w-full h-full object-cover transition-opacity duration-300"
-            />
+            <>
+              {/* Main Image - Zoomed out to show full product */}
+              <img
+                src={imageNodes[currentImageIndex].url}
+                alt={imageNodes[currentImageIndex].altText || title}
+                className="w-full h-full object-contain transition-opacity duration-500"
+              />
+              
+              {/* Image Navigation Arrows - Show when multiple images */}
+              {hasMultipleImages && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white border border-black opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white border border-black opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                  
+                  {/* Image Indicator Dots - Show all images */}
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                    {imageNodes.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCurrentImageIndex(index);
+                        }}
+                        className={`w-1.5 h-1.5 rounded-full transition-all ${
+                          index === currentImageIndex
+                            ? 'bg-black w-4'
+                            : 'bg-white/60 hover:bg-white'
+                        }`}
+                        aria-label={`View image ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-100">
               <span className="text-xs uppercase tracking-wider text-gray-400">
