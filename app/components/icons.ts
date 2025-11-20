@@ -13,4 +13,6 @@ export {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  Bookmark,
+  Search,
 } from 'lucide-react';

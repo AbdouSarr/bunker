@@ -1,6 +1,6 @@
 import ProductGridCard from '~/components/ProductGridCard';
 import type {Product3DDataFragment} from '~/lib/fragments';
-import type {CartApiQueryFragment} from '@shopify/hydrogen';
+import type {CartApiQueryFragment} from 'storefrontapi.generated';
 
 interface ProductGridProps {
   products: Product3DDataFragment[];
@@ -9,17 +9,20 @@ interface ProductGridProps {
 
 export default function ProductGrid({products}: ProductGridProps) {
   return (
-    <section className="w-full bg-white py-16 md:py-24">
-      <div className="max-w-[1400px] mx-auto px-4 md:px-6">
-        {/* Optional Header */}
-        <div className="mb-12 md:mb-16">
-          <h2 className="font-mono text-3xl md:text-4xl font-normal uppercase tracking-wider text-black">
-            Shop All
+    <section id="products" className="w-full bg-white py-12 md:py-16">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8">
+        {/* Product Count */}
+        <div className="mb-8 flex items-center justify-between">
+          <h2 className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black">
+            READY-TO-WEAR
           </h2>
+          <span className="text-xs uppercase tracking-wider text-black">
+            {products.length} {products.length === 1 ? 'Product' : 'Products'}
+          </span>
         </div>
 
-        {/* Product Grid - 2 cols mobile, 4 cols desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 border-l border-t border-black">
+        {/* Product Grid - Clean, minimal layout like Balenciaga */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {products.map((product) => (
             <ProductGridCard key={product.id} product={product} />
           ))}
@@ -28,7 +31,7 @@ export default function ProductGrid({products}: ProductGridProps) {
         {/* Empty State */}
         {products.length === 0 && (
           <div className="text-center py-20">
-            <p className="font-mono text-gray-500 uppercase tracking-wide">
+            <p className="text-sm uppercase tracking-wider text-gray-500">
               No products found
             </p>
           </div>

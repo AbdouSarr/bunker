@@ -4,6 +4,7 @@ import {useState, useEffect, lazy, Suspense} from 'react';
 import LoadingScreen from '~/components/3D/LoadingScreen';
 import {ThreeDErrorBoundary} from '~/components/ErrorBoundary';
 import ProductGrid from '~/components/ProductGrid';
+import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import type {RootLoader} from '~/root';
 
@@ -109,9 +110,17 @@ export default function Homepage() {
   }
 
   return (
-    <div className="homepage-container w-screen bg-white">
+    <div className="homepage-container w-screen bg-white relative">
+      {/* Balenciaga-style Header - Fixed at top */}
+      <BalenciagaHeader
+        header={rootData.header}
+        cart={rootData.cart}
+        isLoggedIn={rootData.isLoggedIn}
+        publicStoreDomain={rootData.publicStoreDomain}
+      />
+      
       {/* 3D Experience Section - Full viewport height */}
-      <div className="relative" style={{ height: '100dvh' }}>
+      <div className="relative" style={{ height: '100dvh', paddingTop: '60px' }}>
         {isClient && !showStorefront && (
           <LoadingScreen onComplete={() => setShowStorefront(true)} />
         )}
@@ -126,7 +135,9 @@ export default function Homepage() {
 
       {/* Product Grid Section - Scrollable */}
       {isClient && showStorefront && (
-        <ProductGrid products={allProducts} cart={rootData.cart} />
+        <div id="products">
+          <ProductGrid products={allProducts} cart={rootData.cart} />
+        </div>
       )}
     </div>
   );

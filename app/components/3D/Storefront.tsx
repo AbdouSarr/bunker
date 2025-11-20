@@ -22,8 +22,7 @@ import {
   fadeStart,
   fadeEnd,
   backgroundAudioURL,
-  speakerModelURL,
-  environmentURL
+  environmentURL,
 } from './constants';
 import { easeOutCubic, easeOutBack } from './utils';
 import type { ProductData, ShopifyProduct, SelectedProduct } from './types';
@@ -383,59 +382,12 @@ const Product: React.FC<ProductProps> = ({
 
 type AudioSpeakerProps = {
   audioEnabled: boolean;
-  hasSelection: boolean;
-  introProgress: MutableRefObject<number>;
 };
 
-const AudioSpeaker: React.FC<AudioSpeakerProps> = ({ audioEnabled, hasSelection, introProgress }) => {
+const AudioSpeaker: React.FC<AudioSpeakerProps> = ({ audioEnabled }) => {
   const groupRef = useRef<THREE.Group>(null);
   const audioRef = useRef<THREE.PositionalAudio | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
   const { camera } = useThree();
-  const gltfSpeaker = useGLTF(speakerModelURL) as any;
-  const speakerModel = gltfSpeaker?.scene;
-
-  const clonedSpeaker = useMemo(() => {
-    if (!speakerModel) return null;
-    const cloned = speakerModel.clone(true);
-    cloned.traverse((child: any) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        child.material = child.material.clone();
-        child.material.transparent = true;
-        child.material.opacity = 0; // Start invisible
-        child.material.envMapIntensity = 1;
-      }
-    });
-    return cloned;
-  }, [speakerModel]);
-
-  useFrame(() => {
-    if (!groupRef.current) return;
-
-    // Calculate intro fade-in alpha (same as products)
-    let introAlpha = 0;
-    if (introProgress.current > fadeStart) {
-      introAlpha = Math.min(
-        (introProgress.current - fadeStart) / (fadeEnd - fadeStart),
-        1,
-      );
-    }
-
-    // Apply selection-based opacity modifier
-    const selectionOpacity = hasSelection ? 0.8 : 1.0;
-    const targetOpacity = introAlpha * selectionOpacity;
-
-    groupRef.current.traverse((child: any) => {
-      if (child.isMesh && child.material) {
-        if (!child.material.transparent) {
-          child.material.transparent = true;
-        }
-        child.material.opacity = THREE.MathUtils.lerp(child.material.opacity || 0, targetOpacity, 0.05);
-      }
-    });
-  });
 
   useEffect(() => {
     const listener = new THREE.AudioListener();
@@ -479,15 +431,7 @@ const AudioSpeaker: React.FC<AudioSpeakerProps> = ({ audioEnabled, hasSelection,
     }
   }, [audioEnabled]);
 
-  if (!clonedSpeaker) {
-    return null;
-  }
-
-  return (
-    <group ref={groupRef} position={[0, -1.8, 0]} scale={[0.3, 0.3, 0.3]}>
-      <primitive object={clonedSpeaker} />
-    </group>
-  );
+  return <group ref={groupRef} position={[0, -1.8, 0]} />;
 };
 
 interface SceneProps {
@@ -678,7 +622,7 @@ const Scene: React.FC<SceneProps> = ({
         {/* REFACTOR: This new group is the common parent. Its position can be changed to move all children. */}
         <group position={worldOffset}>
           {metallicRope && <primitive ref={ropeRef} object={metallicRope} position={[0.0, 0.0, 0.0]} />}
-          <AudioSpeaker audioEnabled={audioEnabled} hasSelection={!!selected} introProgress={introProgress} />
+          <AudioSpeaker audioEnabled={audioEnabled} />
           {[...frontSamples, ...backSamples].map(({ data, position, quaternion }, index) => (
             <Suspense key={data.id} fallback={null}>
               <Product
@@ -991,7 +935,7 @@ export const Storefront: React.FC<StorefrontProps> = ({
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none animate-bounce">
           <ChevronDown size={32} className="text-white drop-shadow-lg" strokeWidth={2} />
           <span className="font-mono text-xs uppercase tracking-wider text-white drop-shadow-lg">
-            Scroll down to see all products
+            See all products
           </span>
         </div>
       )}
