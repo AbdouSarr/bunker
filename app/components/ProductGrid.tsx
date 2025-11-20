@@ -21,8 +21,8 @@ export default function ProductGrid({products}: ProductGridProps) {
           </span>
         </div>
 
-        {/* Product Grid - Clean, minimal layout like Balenciaga */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        {/* Product Grid - Exact Balenciaga layout with borders */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 border-l border-t border-black">
           {products.map((product) => (
             <ProductGridCard key={product.id} product={product} />
           ))}

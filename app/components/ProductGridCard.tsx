@@ -8,7 +8,7 @@ interface ProductGridCardProps {
 }
 
 export default function ProductGridCard({product}: ProductGridCardProps) {
-  const {title, handle, images, variants} = product;
+  const {title, handle, images, variants, options} = product;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -20,11 +20,26 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
   const firstVariant = availableVariants[0] || variants.nodes[0];
   const price = firstVariant?.price;
 
-  // Get available sizes
-  const availableSizes = variants.nodes
-    .filter((v) => v.availableForSale)
-    .map((v) => v.title)
-    .slice(0, 4); // Show max 4 sizes like Balenciaga
+  // Get available sizes - extract size option values
+  const sizeOption = (options as Array<{name: string | null; values: string[]}> | undefined)?.find(
+    opt => opt.name?.toLowerCase() === 'size'
+  );
+  const availableSizes = sizeOption?.values?.filter((size) => {
+    // Check if any variant with this size is available
+    return variants.nodes.some(v => 
+      v.availableForSale && 
+      v.selectedOptions?.some(opt => opt.name?.toLowerCase() === 'size' && opt.value === size)
+    );
+  }) || [];
+
+  // Get color count - count unique color values
+  const uniqueColors = new Set(
+    variants.nodes
+      .filter(v => v.availableForSale)
+      .map(v => v.selectedOptions?.find(opt => opt.name?.toLowerCase() === 'color')?.value)
+      .filter(Boolean)
+  );
+  const colorCount = uniqueColors.size;
 
   const imageNodes = images.nodes;
   const hasMultipleImages = imageNodes.length > 1;
@@ -52,7 +67,7 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
   };
 
   return (
-    <div className="group relative">
+    <div className="group relative bg-white border-r border-b border-black">
       {/* Save Item Button - Top Right */}
       <button
         onClick={(e) => {
@@ -60,20 +75,18 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
           e.stopPropagation();
           setIsSaved(!isSaved);
         }}
-        className="absolute top-2 right-2 z-10 p-2 bg-white/90 hover:bg-white transition-colors opacity-0 group-hover:opacity-100"
+        className="absolute top-2 right-2 z-10 p-1.5 bg-white hover:bg-gray-50 transition-colors"
         aria-label="Save item"
       >
-        <Bookmark
-          size={16}
-          strokeWidth={1.5}
-          className={isSaved ? 'fill-black text-black' : 'text-black'}
-        />
+        <span className="text-xs uppercase tracking-wider text-black">
+          SAVE ITEM
+        </span>
       </button>
 
       {/* Product Image Gallery - Shows all images */}
       <Link to={`/products/${handle}`} prefetch="intent">
         <div
-          className="relative aspect-square bg-white overflow-hidden mb-3"
+          className="relative aspect-square bg-white overflow-hidden"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => {
             setIsHovered(false);
@@ -94,14 +107,14 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white border border-black opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white border border-black opacity-0 group-hover:opacity-100 transition-opacity z-20"
                     aria-label="Previous image"
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white border border-black opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white border border-black opacity-0 group-hover:opacity-100 transition-opacity z-20"
                     aria-label="Next image"
                   >
                     <ChevronRight size={16} />
@@ -139,22 +152,29 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
         </div>
       </Link>
 
-      {/* Product Info - Clean, minimal like Balenciaga */}
-      <div className="space-y-1">
-        {/* Sizes - Inline with title like Balenciaga */}
+      {/* Product Info - Exact Balenciaga layout */}
+      <div className="p-4 space-y-1">
+        {/* Sizes - First line like Balenciaga */}
         {availableSizes.length > 0 && (
           <div className="text-xs uppercase tracking-wider text-black mb-1">
-            {availableSizes.join(' · ')}
-            {variants.nodes.length > 4 && ' ...'}
+            {availableSizes.slice(0, 5).join(' · ')}
+            {availableSizes.length > 5 && ' ...'}
           </div>
         )}
 
         {/* Title */}
         <Link to={`/products/${handle}`} prefetch="intent">
-          <h3 className="text-xs uppercase tracking-wider text-black hover:opacity-70 transition-opacity line-clamp-2 leading-tight">
+          <h3 className="text-xs uppercase tracking-wider text-black hover:opacity-70 transition-opacity line-clamp-2 leading-tight mb-1">
             {title}
           </h3>
         </Link>
+
+        {/* Color count - if multiple colors */}
+        {colorCount > 1 && (
+          <div className="text-xs uppercase tracking-wider text-black mb-1">
+            {colorCount} {colorCount === 1 ? 'color' : 'colors'}
+          </div>
+        )}
 
         {/* Price */}
         {price && (

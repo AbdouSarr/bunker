@@ -23,8 +23,16 @@ export type Product3DDataFragment = {
         currencyCode: string;
       };
       availableForSale: boolean;
+      selectedOptions?: Array<{
+        name: string;
+        value: string;
+      }>;
     }>;
   };
+  options?: Array<{
+    name: string | null;
+    values: string[];
+  }>;
   mdx_model: {
     reference: {
       url?: {value: string};

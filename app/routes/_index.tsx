@@ -43,7 +43,7 @@ const PRODUCTS_QUERY = `#graphql
         height
       }
     }
-    variants(first: 10) {
+    variants(first: 100) {
       nodes {
         id
         title
@@ -52,7 +52,15 @@ const PRODUCTS_QUERY = `#graphql
           currencyCode
         }
         availableForSale
+        selectedOptions {
+          name
+          value
+        }
       }
+    }
+    options {
+      name
+      values
     }
     mdx_model: metafield(namespace: "custom", key: "mdx_model") {
       reference {
