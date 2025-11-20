@@ -18,7 +18,7 @@ export function ProductForm({
 }) {
   const {open} = useAside();
   return (
-    <div className="product-form">
+    <div>
       <VariantSelector
         handle={product.handle}
         options={product.options.filter((option) => option.values.length > 1)}
@@ -26,7 +26,7 @@ export function ProductForm({
       >
         {({option}) => <ProductOptions key={option.name} option={option} />}
       </VariantSelector>
-      <br />
+      
       <AddToCartButton
         disabled={!selectedVariant || !selectedVariant.availableForSale}
         onClick={() => {
@@ -43,6 +43,7 @@ export function ProductForm({
               ]
             : []
         }
+        className="w-full py-3 bg-black text-white text-xs uppercase tracking-wider font-normal hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
       >
         {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
       </AddToCartButton>
@@ -52,29 +53,34 @@ export function ProductForm({
 
 function ProductOptions({option}: {option: VariantOption}) {
   return (
-    <div className="product-options" key={option.name}>
-      <h5>{option.name}</h5>
-      <div className="product-options-grid">
+    <div className="mb-6" key={option.name}>
+      <div className="text-xs uppercase tracking-wider text-black mb-3">
+        {option.name}
+      </div>
+      <div className="flex flex-wrap gap-2">
         {option.values.map(({value, isAvailable, isActive, to}) => {
           return (
             <Link
-              className="product-options-item"
               key={option.name + value}
               prefetch="intent"
               preventScrollReset
               replace
               to={to}
-              style={{
-                border: isActive ? '1px solid black' : '1px solid transparent',
-                opacity: isAvailable ? 1 : 0.3,
-              }}
+              className={`px-4 py-2 text-xs uppercase tracking-wider border transition-all ${
+                isActive
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-black border-black hover:bg-gray-50'
+              } ${
+                !isAvailable
+                  ? 'opacity-30 cursor-not-allowed line-through'
+                  : 'cursor-pointer'
+              }`}
             >
               {value}
             </Link>
           );
         })}
       </div>
-      <br />
     </div>
   );
 }

@@ -9,16 +9,37 @@ export function ProductPrice({
   compareAtPrice?: MoneyV2 | null;
 }) {
   return (
-    <div className="product-price">
+    <div className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black">
       {compareAtPrice ? (
-        <div className="product-price-on-sale">
-          {price ? <Money data={price} /> : null}
-          <s>
-            <Money data={compareAtPrice} />
+        <div className="flex items-center gap-3">
+          {price ? (
+            <span>
+              {new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: price.currencyCode,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(parseFloat(price.amount))}
+            </span>
+          ) : null}
+          <s className="text-gray-500 text-xl">
+            {new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: compareAtPrice.currencyCode,
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(parseFloat(compareAtPrice.amount))}
           </s>
         </div>
       ) : price ? (
-        <Money data={price} />
+        <span>
+          {new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: price.currencyCode,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(parseFloat(price.amount))}
+        </span>
       ) : (
         <span>&nbsp;</span>
       )}

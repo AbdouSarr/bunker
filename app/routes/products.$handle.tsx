@@ -181,15 +181,15 @@ export default function Product() {
         />
       )}
 
-      {/* Product Page - Balenciaga Layout */}
+      {/* Product Page - Exact Balenciaga Layout */}
       <div className="pt-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-screen">
-          {/* Left Column - Image Gallery */}
-          <div className="relative bg-white">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-[calc(100vh-5rem)]">
+          {/* Left Column - Full Height Image Gallery */}
+          <div className="relative bg-white lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)]">
             {/* Save Item Button - Top Right Corner */}
             <button
               onClick={() => setIsSaved(!isSaved)}
-              className="absolute top-4 right-4 z-20 p-2 bg-white/90 hover:bg-white transition-colors"
+              className="absolute top-4 right-4 z-30 p-2 bg-white hover:bg-gray-50 transition-colors"
               aria-label="Save item"
             >
               <Bookmark
@@ -199,40 +199,46 @@ export default function Product() {
               />
             </button>
 
-            {/* Main Image Display */}
-            <div className="relative w-full h-screen lg:h-[100vh] bg-white flex items-center justify-center overflow-hidden">
+            {/* Main Image Display - Full Body Shots Head to Toe */}
+            <div className="relative w-full h-full bg-white flex items-center justify-center overflow-hidden">
               {imageNodes.length > 0 ? (
                 <>
-                  <img
-                    src={imageNodes[currentImageIndex].url}
-                    alt={imageNodes[currentImageIndex].altText || title}
-                    className="w-full h-full object-contain"
-                  />
+                  {/* Main Image - Shows full product/model head to toe without cropping */}
+                  <div className="w-full h-full flex items-center justify-center p-4">
+                    <img
+                      src={imageNodes[currentImageIndex].url}
+                      alt={imageNodes[currentImageIndex].altText || title}
+                      className="w-auto h-auto max-w-full max-h-full object-contain"
+                      style={{
+                        maxHeight: 'calc(100vh - 8rem)',
+                        maxWidth: '100%',
+                        objectFit: 'contain',
+                      }}
+                    />
+                  </div>
                   
                   {/* Navigation Arrows - Show for all images */}
                   {imageNodes.length > 1 && (
                     <>
                       <button
                         onClick={prevImage}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white border border-black transition-opacity z-10"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white hover:bg-gray-50 border border-black z-20"
                         aria-label="Previous image"
                       >
-                        <ChevronLeft size={20} />
+                        <ChevronLeft size={18} />
                       </button>
                       <button
                         onClick={nextImage}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white border border-black transition-opacity z-10"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white hover:bg-gray-50 border border-black z-20"
                         aria-label="Next image"
                       >
-                        <ChevronRight size={20} />
+                        <ChevronRight size={18} />
                       </button>
                       
-                      {/* Image Counter - Only show if more than 1 image */}
-                      {imageNodes.length > 1 && (
-                        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-white/90 px-4 py-2 text-xs uppercase tracking-wider border border-black z-10">
-                          {currentImageIndex + 1} / {imageNodes.length}
-                        </div>
-                      )}
+                      {/* Image Counter */}
+                      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-white px-3 py-1.5 text-xs uppercase tracking-wider border border-black z-20">
+                        {currentImageIndex + 1} / {imageNodes.length}
+                      </div>
                     </>
                   )}
                 </>
@@ -247,8 +253,8 @@ export default function Product() {
 
             {/* Thumbnail Gallery - Bottom - Always show if multiple images */}
             {imageNodes.length > 1 && (
-              <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-black p-4 z-30">
-                <div className="flex gap-2 overflow-x-auto" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-black p-3 z-30">
+                <div className="flex gap-2 overflow-x-auto justify-center" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                   <style>{`
                     .overflow-x-auto::-webkit-scrollbar {
                       display: none;
@@ -258,7 +264,7 @@ export default function Product() {
                     <button
                       key={image.id || `image-${index}`}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-20 border-2 transition-all ${
+                      className={`flex-shrink-0 w-16 h-16 border transition-all ${
                         index === currentImageIndex
                           ? 'border-black'
                           : 'border-transparent hover:border-gray-300'
@@ -278,16 +284,16 @@ export default function Product() {
             )}
           </div>
 
-          {/* Right Column - Product Info */}
-          <div className="bg-white p-8 lg:p-12 lg:sticky lg:top-20 lg:h-screen lg:overflow-y-auto">
+          {/* Right Column - Product Info - Exact Balenciaga Layout */}
+          <div className="bg-white p-6 lg:p-8 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:overflow-y-auto">
             <div className="max-w-md mx-auto lg:mx-0">
-              {/* Product Title */}
-              <h1 className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black mb-4">
+              {/* Product Title - Balenciaga Style */}
+              <h1 className="text-xl md:text-2xl font-normal uppercase tracking-wider text-black mb-4 leading-tight">
                 {title}
               </h1>
 
-              {/* Price */}
-              <div className="mb-6">
+              {/* Price - Balenciaga Style */}
+              <div className="mb-8">
                 <ProductPrice
                   price={selectedVariant?.price}
                   compareAtPrice={selectedVariant?.compareAtPrice}
@@ -295,34 +301,36 @@ export default function Product() {
               </div>
 
               {/* Product Form - Size, Color, Add to Cart */}
-              <Suspense
-                fallback={
-                  <ProductForm
-                    product={product}
-                    selectedVariant={selectedVariant}
-                    variants={[]}
-                  />
-                }
-              >
-                <Await
-                  errorElement="There was a problem loading product variants"
-                  resolve={variants}
-                >
-                  {(data) => (
+              <div className="mb-8">
+                <Suspense
+                  fallback={
                     <ProductForm
                       product={product}
                       selectedVariant={selectedVariant}
-                      variants={data?.product?.variants.nodes || []}
+                      variants={[]}
                     />
-                  )}
-                </Await>
-              </Suspense>
+                  }
+                >
+                  <Await
+                    errorElement="There was a problem loading product variants"
+                    resolve={variants}
+                  >
+                    {(data) => (
+                      <ProductForm
+                        product={product}
+                        selectedVariant={selectedVariant}
+                        variants={data?.product?.variants.nodes || []}
+                      />
+                    )}
+                  </Await>
+                </Suspense>
+              </div>
 
-              {/* Description */}
+              {/* Description - Balenciaga Style */}
               {descriptionHtml && (
                 <div className="mt-8 pt-8 border-t border-black">
                   <div
-                    className="text-sm uppercase tracking-wider text-black prose prose-sm max-w-none"
+                    className="text-xs uppercase tracking-wider text-black leading-relaxed"
                     dangerouslySetInnerHTML={{__html: descriptionHtml}}
                   />
                 </div>
