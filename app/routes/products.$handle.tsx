@@ -15,6 +15,8 @@ import {Bookmark, ChevronLeft, ChevronRight} from '~/components/icons';
 import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {RootLoader} from '~/root';
 import {useRouteLoaderData} from '@remix-run/react';
+import {useSavedItems} from '~/hooks/useSavedItems';
+import {saveItem, removeItem} from '~/lib/savedItems';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [{title: `Bunker Studio | ${data?.product.title ?? ''}`}];
@@ -139,9 +141,19 @@ export default function Product() {
 
   const {title, descriptionHtml, images} = product;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({x: 0, y: 0});
   const imageNodes = images?.nodes || [];
   const hasMultipleImages = imageNodes.length > 1;
+  const {checkIfSaved, addItem, removeSavedItem, isClient} = useSavedItems();
+  const [isSaved, setIsSaved] = useState(false);
+
+  // Check if product is saved on mount
+  useEffect(() => {
+    if (isClient) {
+      setIsSaved(checkIfSaved(product.id));
+    }
+  }, [isClient, product.id, checkIfSaved]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % imageNodes.length);
@@ -188,9 +200,30 @@ export default function Product() {
           <div className="relative bg-white lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)]">
             {/* Save Item Button - Top Right Corner */}
             <button
-              onClick={() => setIsSaved(!isSaved)}
+              onClick={() => {
+                if (!isClient) return;
+                
+                const firstImage = imageNodes[0];
+                const productData = {
+                  id: product.id,
+                  title: product.title,
+                  handle: product.handle,
+                  imageUrl: firstImage?.url || '',
+                  price: selectedVariant?.price?.amount || '0',
+                  currencyCode: selectedVariant?.price?.currencyCode || 'USD',
+                  variantId: selectedVariant?.id,
+                };
+
+                if (isSaved) {
+                  removeSavedItem(product.id);
+                  setIsSaved(false);
+                } else {
+                  addItem(productData);
+                  setIsSaved(true);
+                }
+              }}
               className="absolute top-4 right-4 z-30 p-2 bg-white hover:bg-gray-50 transition-colors"
-              aria-label="Save item"
+              aria-label={isSaved ? 'Remove from saved' : 'Save item'}
             >
               <Bookmark
                 size={20}
@@ -199,22 +232,30 @@ export default function Product() {
               />
             </button>
 
-            {/* Main Image Display - Full Body Shots - No Cutoffs */}
-            <div className="relative w-full h-full bg-white" style={{minHeight: 'calc(100vh - 5rem)'}}>
+            {/* Main Image Display - Full Body Shots - No Cutoffs with Zoom */}
+            <div className="relative w-full h-full bg-white overflow-hidden" style={{minHeight: 'calc(100vh - 5rem)'}}>
               {imageNodes.length > 0 ? (
                 <>
-                  {/* Main Image Container - Shows complete product/model head to toe */}
+                  {/* Main Image Container - Shows complete product/model head to toe with hover zoom */}
                   <div 
-                    className="absolute inset-0 flex items-center justify-center"
+                    className="absolute inset-0 flex items-center justify-center cursor-zoom-in"
                     style={{
                       paddingTop: imageNodes.length > 1 ? '0' : '0',
                       paddingBottom: imageNodes.length > 1 ? '80px' : '0',
                     }}
+                    onMouseMove={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = ((e.clientX - rect.left) / rect.width) * 100;
+                      const y = ((e.clientY - rect.top) / rect.height) * 100;
+                      setZoomPosition({x, y});
+                    }}
+                    onMouseEnter={() => setIsZoomed(true)}
+                    onMouseLeave={() => setIsZoomed(false)}
                   >
                     <img
                       src={imageNodes[currentImageIndex].url}
                       alt={imageNodes[currentImageIndex].altText || title}
-                      className="block"
+                      className="block transition-transform duration-200 ease-out"
                       style={{
                         maxWidth: '100%',
                         maxHeight: imageNodes.length > 1 ? 'calc(100% - 80px)' : '100%',
@@ -222,6 +263,9 @@ export default function Product() {
                         height: 'auto',
                         objectFit: 'contain',
                         objectPosition: 'center',
+                        transform: isZoomed ? `scale(2.5)` : 'scale(1)',
+                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                        cursor: isZoomed ? 'zoom-out' : 'zoom-in',
                       }}
                     />
                   </div>
@@ -243,11 +287,6 @@ export default function Product() {
                       >
                         <ChevronRight size={18} />
                       </button>
-                      
-                      {/* Image Counter */}
-                      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-white px-3 py-1.5 text-xs uppercase tracking-wider border border-black z-20">
-                        {currentImageIndex + 1} / {imageNodes.length}
-                      </div>
                     </>
                   )}
                 </>
@@ -293,31 +332,33 @@ export default function Product() {
             )}
           </div>
 
-          {/* Right Column - Product Info - Exact Balenciaga Layout */}
-          <div className="bg-white p-6 lg:p-8 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:overflow-y-auto">
-            <div className="max-w-md mx-auto lg:mx-0">
-              {/* Product Title - Exact Balenciaga Style */}
-              <h1 className="text-xl md:text-2xl font-normal uppercase tracking-wider text-black mb-4 leading-tight">
-                {title}
-              </h1>
+          {/* Right Column - Product Info - Exact Balenciaga Layout with Clear Spacing */}
+          <div className="bg-white p-6 lg:p-10 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:overflow-y-auto">
+            <div className="max-w-lg mx-auto lg:mx-0 space-y-6">
+              {/* Product Title - Clear and Spaced */}
+              <div>
+                <h1 className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black leading-tight">
+                  {title}
+                </h1>
+              </div>
 
-              {/* Price - Exact Balenciaga Style */}
-              <div className="mb-6">
+              {/* Price - Clear and Spaced */}
+              <div>
                 <ProductPrice
                   price={selectedVariant?.price}
                   compareAtPrice={selectedVariant?.compareAtPrice}
                 />
               </div>
 
-              {/* Product Description Line - Balenciaga Style */}
+              {/* Product Description - Clear and Spaced */}
               {descriptionHtml && (
-                <div className="mb-6 text-xs uppercase tracking-wider text-black leading-relaxed">
+                <div className="text-xs uppercase tracking-wider text-black leading-relaxed">
                   <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
                 </div>
               )}
 
-              {/* Product Form - Size, Color, Add to Cart */}
-              <div className="mb-8">
+              {/* Product Form - Size, Color, Add to Cart - Well Spaced */}
+              <div className="space-y-6">
                 <Suspense
                   fallback={
                     <ProductForm

@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import {Link} from '@remix-run/react';
 import {Bookmark, ChevronLeft, ChevronRight} from '~/components/icons';
 import type {Product3DDataFragment} from '~/lib/fragments';
+import {useSavedItems} from '~/hooks/useSavedItems';
+import {saveItem, removeItem} from '~/lib/savedItems';
 
 interface ProductGridCardProps {
   product: Product3DDataFragment;
@@ -10,8 +12,16 @@ interface ProductGridCardProps {
 export default function ProductGridCard({product}: ProductGridCardProps) {
   const {title, handle, images, variants, options} = product;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isSaved, setIsSaved] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const {checkIfSaved, addItem, removeSavedItem, isClient} = useSavedItems();
+  const [isSaved, setIsSaved] = useState(false);
+
+  // Check if product is saved on mount
+  useEffect(() => {
+    if (isClient) {
+      setIsSaved(checkIfSaved(product.id));
+    }
+  }, [isClient, product.id, checkIfSaved]);
 
   // Get the first available variant for price
   const availableVariants = variants.nodes.filter(
@@ -44,13 +54,14 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
   const imageNodes = images.nodes;
   const hasMultipleImages = imageNodes.length > 1;
 
-  // Auto-cycle through images on hover
+  // Auto-switch to product detail shot (second image) on hover
   useEffect(() => {
-    if (isHovered && hasMultipleImages) {
-      const interval = setInterval(() => {
-        setCurrentImageIndex((prev) => (prev + 1) % imageNodes.length);
-      }, 2000); // Change image every 2 seconds
-      return () => clearInterval(interval);
+    if (isHovered && hasMultipleImages && imageNodes.length > 1) {
+      // Switch to second image (product detail shot) immediately on hover
+      setCurrentImageIndex(1);
+    } else if (!isHovered) {
+      // Reset to first image when not hovering
+      setCurrentImageIndex(0);
     }
   }, [isHovered, hasMultipleImages, imageNodes.length]);
 
@@ -73,10 +84,33 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setIsSaved(!isSaved);
+          if (!isClient) return;
+
+          const firstImage = imageNodes[0];
+          const availableVariants = variants.nodes.filter(
+            (variant) => variant.availableForSale,
+          );
+          const firstVariant = availableVariants[0] || variants.nodes[0];
+          const productData = {
+            id: product.id,
+            title: product.title,
+            handle: product.handle,
+            imageUrl: firstImage?.url || '',
+            price: firstVariant?.price?.amount || '0',
+            currencyCode: firstVariant?.price?.currencyCode || 'USD',
+            variantId: firstVariant?.id,
+          };
+
+          if (isSaved) {
+            removeSavedItem(product.id);
+            setIsSaved(false);
+          } else {
+            addItem(productData);
+            setIsSaved(true);
+          }
         }}
         className="absolute top-2 right-2 z-10 p-1.5 bg-white hover:bg-gray-50 transition-colors"
-        aria-label="Save item"
+        aria-label={isSaved ? 'Remove from saved' : 'Save item'}
       >
         <span className="text-xs uppercase tracking-wider text-black">
           SAVE ITEM

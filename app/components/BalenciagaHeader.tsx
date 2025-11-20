@@ -1,8 +1,9 @@
 import {NavLink, Await} from '@remix-run/react';
-import {Suspense, useState} from 'react';
+import {Suspense, useState, useEffect} from 'react';
 import {useAside} from '~/components/Aside';
 import {Bookmark, ShoppingCart} from '~/components/icons';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
+import {getSavedItems} from '~/lib/savedItems';
 
 interface BalenciagaHeaderProps {
   header: HeaderQuery;
@@ -19,6 +20,27 @@ export function BalenciagaHeader({
 }: BalenciagaHeaderProps) {
   const {open} = useAside();
   const [logoFailed, setLogoFailed] = useState(false);
+  const [savedCount, setSavedCount] = useState(0);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setSavedCount(getSavedItems().length);
+    
+    // Update count when storage changes
+    const handleStorageChange = () => {
+      setSavedCount(getSavedItems().length);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    // Also listen for custom events for same-tab updates
+    window.addEventListener('savedItemsChanged', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('savedItemsChanged', handleStorageChange);
+    };
+  }, []);
   
   // Safe defaults if header is not available
   const safeHeader = header || { shop: { primaryDomain: { url: '' } } };
@@ -49,17 +71,17 @@ export function BalenciagaHeader({
           </a>
         </nav>
 
-        {/* Center Logo - Prominent like Balenciaga */}
+        {/* Center Logo - Proportional to header text, prominent */}
         <div className="absolute left-1/2 -translate-x-1/2">
           {!logoFailed ? (
             <img
               src="/bunker-logo.png"
               alt="BUNKER"
-              className="h-10 md:h-14 lg:h-20 xl:h-24 w-auto"
+              className="h-14 md:h-20 lg:h-24 xl:h-28 w-auto"
               onError={() => setLogoFailed(true)}
             />
           ) : (
-            <span className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold uppercase tracking-wider text-black">
+            <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold uppercase tracking-wider text-black">
               BUNKER
             </span>
           )}
@@ -85,13 +107,19 @@ export function BalenciagaHeader({
               </Await>
             </Suspense>
           </NavLink>
-          <button
-            onClick={() => open('search')}
-            className="p-1 hover:opacity-70 transition-opacity text-black"
+          <NavLink
+            to="/saved"
+            prefetch="intent"
+            className="p-1 hover:opacity-70 transition-opacity text-black relative"
             aria-label="Saved items"
           >
             <Bookmark size={16} strokeWidth={1.5} />
-          </button>
+            {isClient && savedCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                {savedCount}
+              </span>
+            )}
+          </NavLink>
           <button
             onClick={() => open('cart')}
             className="p-1 hover:opacity-70 transition-opacity relative text-black"
