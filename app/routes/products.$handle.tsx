@@ -1,4 +1,4 @@
-import {Suspense} from 'react';
+import {Suspense, useState, useEffect} from 'react';
 import {defer, redirect, type LoaderFunctionArgs} from '@netlify/remix-runtime';
 import {Await, useLoaderData, type MetaFunction} from '@remix-run/react';
 import type {ProductFragment} from 'storefrontapi.generated';
@@ -10,8 +10,11 @@ import {
 import type {SelectedOption} from '@shopify/hydrogen/storefront-api-types';
 import {getVariantUrl} from '~/lib/variants';
 import {ProductPrice} from '~/components/ProductPrice';
-import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
+import {Bookmark, ChevronLeft, ChevronRight} from '~/components/icons';
+import {BalenciagaHeader} from '~/components/BalenciagaHeader';
+import type {RootLoader} from '~/root';
+import {useRouteLoaderData} from '@remix-run/react';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [{title: `Bunker Studio | ${data?.product.title ?? ''}`}];
@@ -128,54 +131,207 @@ function redirectToFirstVariant({
 
 export default function Product() {
   const {product, variants} = useLoaderData<typeof loader>();
+  const rootData = useRouteLoaderData<RootLoader>('root');
   const selectedVariant = useOptimisticVariant(
     product.selectedVariant,
     variants,
   );
 
-  const {title, descriptionHtml} = product;
+  const {title, descriptionHtml, images} = product;
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isSaved, setIsSaved] = useState(false);
+  const imageNodes = images?.nodes || [];
+  const hasMultipleImages = imageNodes.length > 1;
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % imageNodes.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + imageNodes.length) % imageNodes.length);
+  };
+
+  // Keyboard navigation for images
+  useEffect(() => {
+    if (imageNodes.length <= 1) return;
+    
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setCurrentImageIndex((prev) => (prev - 1 + imageNodes.length) % imageNodes.length);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setCurrentImageIndex((prev) => (prev + 1) % imageNodes.length);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [imageNodes.length]);
 
   return (
-    <div className="product">
-      <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      {rootData?.header && (
+        <BalenciagaHeader
+          header={rootData.header}
+          cart={rootData.cart}
+          isLoggedIn={rootData.isLoggedIn}
+          publicStoreDomain={rootData.publicStoreDomain}
         />
-        <br />
-        <Suspense
-          fallback={
-            <ProductForm
-              product={product}
-              selectedVariant={selectedVariant}
-              variants={[]}
-            />
-          }
-        >
-          <Await
-            errorElement="There was a problem loading product variants"
-            resolve={variants}
-          >
-            {(data) => (
-              <ProductForm
-                product={product}
-                selectedVariant={selectedVariant}
-                variants={data?.product?.variants.nodes || []}
+      )}
+
+      {/* Product Page - Balenciaga Layout */}
+      <div className="pt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-screen">
+          {/* Left Column - Image Gallery */}
+          <div className="relative bg-white">
+            {/* Save Item Button - Top Right Corner */}
+            <button
+              onClick={() => setIsSaved(!isSaved)}
+              className="absolute top-4 right-4 z-20 p-2 bg-white/90 hover:bg-white transition-colors"
+              aria-label="Save item"
+            >
+              <Bookmark
+                size={20}
+                strokeWidth={1.5}
+                className={isSaved ? 'fill-black text-black' : 'text-black'}
               />
+            </button>
+
+            {/* Main Image Display */}
+            <div className="relative w-full h-screen lg:h-[100vh] bg-white flex items-center justify-center overflow-hidden">
+              {imageNodes.length > 0 ? (
+                <>
+                  <img
+                    src={imageNodes[currentImageIndex].url}
+                    alt={imageNodes[currentImageIndex].altText || title}
+                    className="w-full h-full object-contain"
+                  />
+                  
+                  {/* Navigation Arrows - Show for all images */}
+                  {imageNodes.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white border border-black transition-opacity z-10"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white border border-black transition-opacity z-10"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                      
+                      {/* Image Counter - Only show if more than 1 image */}
+                      {imageNodes.length > 1 && (
+                        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-white/90 px-4 py-2 text-xs uppercase tracking-wider border border-black z-10">
+                          {currentImageIndex + 1} / {imageNodes.length}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-sm uppercase tracking-wider text-gray-400">
+                    No Image
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnail Gallery - Bottom - Always show if multiple images */}
+            {imageNodes.length > 1 && (
+              <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-black p-4 z-30">
+                <div className="flex gap-2 overflow-x-auto" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                  <style>{`
+                    .overflow-x-auto::-webkit-scrollbar {
+                      display: none;
+                    }
+                  `}</style>
+                  {imageNodes.map((image, index) => (
+                    <button
+                      key={image.id || `image-${index}`}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`flex-shrink-0 w-20 h-20 border-2 transition-all ${
+                        index === currentImageIndex
+                          ? 'border-black'
+                          : 'border-transparent hover:border-gray-300'
+                      }`}
+                      aria-label={`View image ${index + 1} of ${imageNodes.length}`}
+                    >
+                      <img
+                        src={image.url}
+                        alt={image.altText || `${title} - Image ${index + 1}`}
+                        className="w-full h-full object-contain"
+                        loading="lazy"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
-          </Await>
-        </Suspense>
-        <br />
-        <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
+          </div>
+
+          {/* Right Column - Product Info */}
+          <div className="bg-white p-8 lg:p-12 lg:sticky lg:top-20 lg:h-screen lg:overflow-y-auto">
+            <div className="max-w-md mx-auto lg:mx-0">
+              {/* Product Title */}
+              <h1 className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black mb-4">
+                {title}
+              </h1>
+
+              {/* Price */}
+              <div className="mb-6">
+                <ProductPrice
+                  price={selectedVariant?.price}
+                  compareAtPrice={selectedVariant?.compareAtPrice}
+                />
+              </div>
+
+              {/* Product Form - Size, Color, Add to Cart */}
+              <Suspense
+                fallback={
+                  <ProductForm
+                    product={product}
+                    selectedVariant={selectedVariant}
+                    variants={[]}
+                  />
+                }
+              >
+                <Await
+                  errorElement="There was a problem loading product variants"
+                  resolve={variants}
+                >
+                  {(data) => (
+                    <ProductForm
+                      product={product}
+                      selectedVariant={selectedVariant}
+                      variants={data?.product?.variants.nodes || []}
+                    />
+                  )}
+                </Await>
+              </Suspense>
+
+              {/* Description */}
+              {descriptionHtml && (
+                <div className="mt-8 pt-8 border-t border-black">
+                  <div
+                    className="text-sm uppercase tracking-wider text-black prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{__html: descriptionHtml}}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
+
       <Analytics.ProductView
         data={{
           products: [
@@ -240,6 +396,15 @@ const PRODUCT_FRAGMENT = `#graphql
     handle
     descriptionHtml
     description
+    images(first: 250) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
     options {
       name
       values
