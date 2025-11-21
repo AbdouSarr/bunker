@@ -79,7 +79,7 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
 
   return (
     <div className="group relative bg-white border-r border-b border-black">
-      {/* Save Item Button - Top Right */}
+      {/* Save Item Button - Top Right - Compact */}
       <button
         onClick={(e) => {
           e.preventDefault();
@@ -109,10 +109,10 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
             setIsSaved(true);
           }
         }}
-        className="absolute top-2 right-2 z-10 p-1.5 bg-white hover:bg-gray-50 transition-colors"
+        className="absolute top-1.5 right-1.5 z-10 p-1 bg-white hover:bg-gray-50 transition-colors"
         aria-label={isSaved ? 'Remove from saved' : 'Save item'}
       >
-        <span className="text-xs uppercase tracking-wider text-black">
+        <span className="text-[10px] uppercase tracking-wider text-black">
           SAVE ITEM
         </span>
       </button>
@@ -186,11 +186,11 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
         </div>
       </Link>
 
-      {/* Product Info - Exact Balenciaga layout */}
-      <div className="p-4 space-y-1">
+      {/* Product Info - Exact Balenciaga layout - Compact */}
+      <div className="p-3 space-y-0.5">
         {/* Sizes - First line like Balenciaga */}
         {availableSizes.length > 0 && (
-          <div className="text-xs uppercase tracking-wider text-black mb-1">
+          <div className="text-[10px] uppercase tracking-wider text-black mb-0.5">
             {availableSizes.slice(0, 5).join(' · ')}
             {availableSizes.length > 5 && ' ...'}
           </div>
@@ -198,21 +198,21 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
 
         {/* Title */}
         <Link to={`/products/${handle}`} prefetch="intent">
-          <h3 className="text-xs uppercase tracking-wider text-black hover:opacity-70 transition-opacity line-clamp-2 leading-tight mb-1">
+          <h3 className="text-[10px] uppercase tracking-wider text-black hover:opacity-70 transition-opacity line-clamp-2 leading-tight mb-0.5">
             {title}
           </h3>
         </Link>
 
         {/* Color count - if multiple colors */}
         {colorCount > 1 && (
-          <div className="text-xs uppercase tracking-wider text-black mb-1">
+          <div className="text-[10px] uppercase tracking-wider text-black mb-0.5">
             {colorCount} {colorCount === 1 ? 'color' : 'colors'}
           </div>
         )}
 
         {/* Price */}
         {price && (
-          <div className="text-xs uppercase tracking-wider text-black mt-1">
+          <div className="text-[10px] uppercase tracking-wider text-black mt-0.5">
             {new Intl.NumberFormat('en-US', {
               style: 'currency',
               currency: price.currencyCode,

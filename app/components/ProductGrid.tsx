@@ -10,7 +10,7 @@ interface ProductGridProps {
 export default function ProductGrid({products}: ProductGridProps) {
   return (
     <section id="products" className="w-full bg-white py-12 md:py-16">
-      <div className="max-w-[1600px] mx-auto px-4 md:px-8">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-6">
         {/* Product Count */}
         <div className="mb-8 flex items-center justify-between">
           <h2 className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black">

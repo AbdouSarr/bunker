@@ -15,4 +15,6 @@ export {
   ChevronDown,
   Bookmark,
   Search,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';

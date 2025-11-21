@@ -11,7 +11,7 @@ import type {SelectedOption} from '@shopify/hydrogen/storefront-api-types';
 import {getVariantUrl} from '~/lib/variants';
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductForm} from '~/components/ProductForm';
-import {Bookmark, ChevronLeft, ChevronRight} from '~/components/icons';
+import {Bookmark, ChevronLeft, ChevronRight, ZoomIn, ZoomOut} from '~/components/icons';
 import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {RootLoader} from '~/root';
 import {useRouteLoaderData} from '@remix-run/react';
@@ -232,25 +232,38 @@ export default function Product() {
               />
             </button>
 
-            {/* Main Image Display - Full Body Shots - No Cutoffs with Zoom */}
+            {/* Main Image Display - Full Body Shots - No Cutoffs with Click Zoom */}
             <div className="relative w-full h-full bg-white overflow-hidden" style={{minHeight: 'calc(100vh - 5rem)'}}>
               {imageNodes.length > 0 ? (
                 <>
-                  {/* Main Image Container - Shows complete product/model head to toe with hover zoom */}
+                  {/* Zoom Toggle Button */}
+                  <button
+                    onClick={() => setIsZoomed(!isZoomed)}
+                    className="absolute top-4 left-4 z-30 p-2 bg-white hover:bg-gray-50 border border-black transition-colors"
+                    aria-label={isZoomed ? 'Zoom out' : 'Zoom in'}
+                  >
+                    {isZoomed ? (
+                      <ZoomOut size={20} strokeWidth={1.5} className="text-black" />
+                    ) : (
+                      <ZoomIn size={20} strokeWidth={1.5} className="text-black" />
+                    )}
+                  </button>
+
+                  {/* Main Image Container - Shows complete product/model head to toe with click zoom */}
                   <div 
-                    className="absolute inset-0 flex items-center justify-center cursor-zoom-in"
+                    className="absolute inset-0 flex items-center justify-center"
                     style={{
                       paddingTop: imageNodes.length > 1 ? '0' : '0',
                       paddingBottom: imageNodes.length > 1 ? '80px' : '0',
                     }}
                     onMouseMove={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = ((e.clientX - rect.left) / rect.width) * 100;
-                      const y = ((e.clientY - rect.top) / rect.height) * 100;
-                      setZoomPosition({x, y});
+                      if (isZoomed) {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const x = ((e.clientX - rect.left) / rect.width) * 100;
+                        const y = ((e.clientY - rect.top) / rect.height) * 100;
+                        setZoomPosition({x, y});
+                      }
                     }}
-                    onMouseEnter={() => setIsZoomed(true)}
-                    onMouseLeave={() => setIsZoomed(false)}
                   >
                     <img
                       src={imageNodes[currentImageIndex].url}
@@ -264,8 +277,8 @@ export default function Product() {
                         objectFit: 'contain',
                         objectPosition: 'center',
                         transform: isZoomed ? `scale(2.5)` : 'scale(1)',
-                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                        cursor: isZoomed ? 'zoom-out' : 'zoom-in',
+                        transformOrigin: isZoomed ? `${zoomPosition.x}% ${zoomPosition.y}%` : 'center',
+                        cursor: isZoomed ? 'move' : 'default',
                       }}
                     />
                   </div>
