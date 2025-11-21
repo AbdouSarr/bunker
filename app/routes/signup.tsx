@@ -199,7 +199,7 @@ export default function Signup() {
                   <div className="mt-6">
                     <a
                       href="/#products"
-                      className="inline-block px-8 py-3 bg-black text-white text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors"
+                      className="inline-block px-8 py-3 bg-white text-black border-2 border-black text-sm uppercase tracking-wider hover:bg-gray-50 transition-colors"
                     >
                       Start Shopping
                     </a>
