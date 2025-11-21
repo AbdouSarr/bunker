@@ -71,17 +71,17 @@ export function BalenciagaHeader({
           </a>
         </nav>
 
-        {/* Center Logo - Proportional to header text, prominent */}
+        {/* Center Logo - 2x Larger, Proportional to header text, prominent */}
         <div className="absolute left-1/2 -translate-x-1/2">
           {!logoFailed ? (
             <img
               src="/bunker-logo.png"
               alt="BUNKER"
-              className="h-14 md:h-20 lg:h-24 xl:h-28 w-auto"
+              className="h-28 md:h-40 lg:h-48 xl:h-56 w-auto"
               onError={() => setLogoFailed(true)}
             />
           ) : (
-            <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold uppercase tracking-wider text-black">
+            <span className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold uppercase tracking-wider text-black">
               BUNKER
             </span>
           )}
