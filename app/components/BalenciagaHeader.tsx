@@ -1,7 +1,7 @@
 import {NavLink, Await} from '@remix-run/react';
 import {Suspense, useState, useEffect} from 'react';
 import {useAside} from '~/components/Aside';
-import {Bookmark, ShoppingCart} from '~/components/icons';
+import {Bookmark, ShoppingCart, ChevronDown} from '~/components/icons';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {getSavedItems} from '~/lib/savedItems';
 
@@ -22,6 +22,7 @@ export function BalenciagaHeader({
   const [logoFailed, setLogoFailed] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
   const [isClient, setIsClient] = useState(false);
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -45,61 +46,139 @@ export function BalenciagaHeader({
   // Safe defaults if header is not available
   const safeHeader = header || { shop: { primaryDomain: { url: '' } } };
 
-  // Single navigation link - optimized shopping experience
-  const navLink = { title: 'READY-TO-WEAR', url: '/#products', onClick: (e: React.MouseEvent) => {
-    e.preventDefault();
-    const productsSection = document.getElementById('products');
-    if (productsSection) {
-      productsSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.location.href = '/#products';
-    }
-  }};
+  // Navigation menu structure similar to Balenciaga
+  const navigationMenu = [
+    {
+      title: 'READY-TO-WEAR',
+      url: '/#products',
+      items: [
+        { title: 'View All', url: '/#products' },
+        { title: 'Coats & Jackets', url: '/#products' },
+        { title: 'Tops & Shirts', url: '/#products' },
+        { title: 'Pants', url: '/#products' },
+      ],
+    },
+    {
+      title: 'COLLECTIONS',
+      url: '/#products',
+      items: [
+        { title: 'Spring 26', url: '/#products' },
+        { title: 'Winter 25', url: '/#products' },
+        { title: 'Limited Edition', url: '/#products' },
+      ],
+    },
+    {
+      title: 'ABOUT',
+      url: '/about',
+      items: [
+        { title: 'Our Story', url: '/about' },
+        { title: 'Sustainability', url: '/about' },
+        { title: 'Contact', url: '/contact' },
+      ],
+    },
+  ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[9999] bg-white border-t border-b border-black">
       {/* Single Row Navigation Bar */}
-      <div className="flex items-center justify-between px-6 py-4">
-        {/* Left Navigation Link */}
-        <nav className="flex items-center">
-          <a
-            href={navLink.url}
-            onClick={navLink.onClick}
-            className="text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity cursor-pointer"
-          >
-            {navLink.title}
-          </a>
+      <div className="flex items-center justify-between px-3 md:px-6 py-3 md:py-4 relative">
+        {/* Left Navigation Menu - Balenciaga Style with Text Dropdown */}
+        <nav className="flex items-center gap-4 md:gap-6 flex-shrink-0 relative z-50">
+          {navigationMenu.map((item) => (
+            <div
+              key={item.title}
+              className="relative"
+              onMouseEnter={() => setHoveredNav(item.title)}
+              onMouseLeave={() => setHoveredNav(null)}
+            >
+              <a
+                href={item.url}
+                onClick={(e) => {
+                  if (item.url.startsWith('/#')) {
+                    e.preventDefault();
+                    const productsSection = document.getElementById('products');
+                    if (productsSection) {
+                      productsSection.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      window.location.href = item.url;
+                    }
+                  }
+                }}
+                className="flex items-center gap-1 text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap"
+              >
+                {item.title}
+                {item.items && item.items.length > 0 && (
+                  <ChevronDown size={12} className="opacity-70" />
+                )}
+              </a>
+              
+              {/* Dropdown Menu - Text-based */}
+              {item.items && item.items.length > 0 && hoveredNav === item.title && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-black shadow-lg min-w-[200px] z-[100]">
+                  <div className="py-2">
+                    {item.items.map((subItem, index) => (
+                      <a
+                        key={index}
+                        href={subItem.url}
+                        onClick={(e) => {
+                          if (subItem.url.startsWith('/#')) {
+                            e.preventDefault();
+                            const productsSection = document.getElementById('products');
+                            if (productsSection) {
+                              productsSection.scrollIntoView({ behavior: 'smooth' });
+                            } else {
+                              window.location.href = subItem.url;
+                            }
+                          }
+                          setHoveredNav(null);
+                        }}
+                        className="block px-4 py-2 text-xs uppercase tracking-wider text-black hover:bg-gray-50 transition-colors"
+                      >
+                        {subItem.title}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </nav>
 
-        {/* Center Logo - 2x Larger, Proportional to header text, prominent */}
-        <div className="absolute left-1/2 -translate-x-1/2">
+        {/* Center Logo - Prominent size matching image */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex-shrink-0">
           {!logoFailed ? (
             <img
               src="/bunker-logo.png"
               alt="BUNKER"
-              className="h-28 md:h-40 lg:h-48 xl:h-56 w-auto"
+              style={{
+                height: '6rem',
+                width: 'auto',
+                objectFit: 'contain',
+              }}
+              className="md:h-52 lg:h-60 xl:h-72"
               onError={() => setLogoFailed(true)}
             />
           ) : (
-            <span className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold uppercase tracking-wider text-black">
+            <span className="text-4xl md:text-7xl lg:text-8xl xl:text-9xl font-bold uppercase tracking-wider text-black">
               BUNKER
             </span>
           )}
         </div>
 
-        {/* Right Utility Links & Icons */}
-        <nav className="flex items-center gap-6">
+        {/* Right Utility Links & Icons - Compact on mobile */}
+        <nav className="flex items-center gap-2 md:gap-6 flex-shrink-0">
+          {/* Text links hidden on mobile, show icons only */}
           <NavLink
             to="/signup"
             prefetch="intent"
-            className="text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity"
+            className="hidden md:block text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity"
           >
             SIGN UP
           </NavLink>
           <NavLink
             to="/account"
             prefetch="intent"
-            className="text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity"
+            className="hidden md:block text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity"
           >
             <Suspense fallback="LOGIN">
               <Await resolve={isLoggedIn} errorElement="LOGIN">
