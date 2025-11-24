@@ -4,5 +4,6 @@ import {redirect, type LoaderFunctionArgs} from '@netlify/remix-runtime';
 export async function loader({context}: LoaderFunctionArgs) {
   await context.customerAccount.handleAuthStatus();
 
-  return redirect('/account');
+  // Redirect to homepage instead of account page
+  return redirect('/');
 }
