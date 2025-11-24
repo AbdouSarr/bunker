@@ -64,7 +64,7 @@ export function BalenciagaHeader({
       items: [
         { title: 'Spring 26', url: '/#products' },
         { title: 'Winter 25', url: '/#products' },
-        { title: 'Limited Edition', url: '/#products' },
+        { title: 'Limited Edition', url: '/limited-edition' },
       ],
     },
     {
@@ -112,31 +112,37 @@ export function BalenciagaHeader({
                 )}
               </a>
               
-              {/* Dropdown Menu - Text-based */}
+              {/* Dropdown Menu - Text-based with no gap to prevent disappearing */}
               {item.items && item.items.length > 0 && hoveredNav === item.title && (
-                <div className="absolute top-full left-0 mt-1 bg-white border border-black shadow-lg min-w-[200px] z-[100]">
-                  <div className="py-2">
-                    {item.items.map((subItem, index) => (
-                      <a
-                        key={index}
-                        href={subItem.url}
-                        onClick={(e) => {
-                          if (subItem.url.startsWith('/#')) {
-                            e.preventDefault();
-                            const productsSection = document.getElementById('products');
-                            if (productsSection) {
-                              productsSection.scrollIntoView({ behavior: 'smooth' });
-                            } else {
-                              window.location.href = subItem.url;
+                <div 
+                  className="absolute top-full left-0 pt-0.5 z-[100]"
+                  onMouseEnter={() => setHoveredNav(item.title)}
+                  onMouseLeave={() => setHoveredNav(null)}
+                >
+                  <div className="bg-white border border-black shadow-lg min-w-[200px]">
+                    <div className="py-2">
+                      {item.items.map((subItem, index) => (
+                        <a
+                          key={index}
+                          href={subItem.url}
+                          onClick={(e) => {
+                            if (subItem.url.startsWith('/#')) {
+                              e.preventDefault();
+                              const productsSection = document.getElementById('products');
+                              if (productsSection) {
+                                productsSection.scrollIntoView({ behavior: 'smooth' });
+                              } else {
+                                window.location.href = subItem.url;
+                              }
                             }
-                          }
-                          setHoveredNav(null);
-                        }}
-                        className="block px-4 py-2 text-xs uppercase tracking-wider text-black hover:bg-gray-50 transition-colors"
-                      >
-                        {subItem.title}
-                      </a>
-                    ))}
+                            setHoveredNav(null);
+                          }}
+                          className="block px-4 py-2 text-xs uppercase tracking-wider text-black hover:bg-gray-50 transition-colors cursor-pointer"
+                        >
+                          {subItem.title}
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -144,22 +150,22 @@ export function BalenciagaHeader({
           ))}
         </nav>
 
-        {/* Center Logo - Prominent size matching image */}
+        {/* Center Logo - 2x Larger, clearly visible */}
         <div className="absolute left-1/2 -translate-x-1/2 flex-shrink-0">
           {!logoFailed ? (
             <img
               src="/bunker-logo.png"
               alt="BUNKER"
               style={{
-                height: '6rem',
+                height: '12rem',
                 width: 'auto',
                 objectFit: 'contain',
               }}
-              className="md:h-52 lg:h-60 xl:h-72"
+              className="md:h-[416px] lg:h-[480px] xl:h-[576px]"
               onError={() => setLogoFailed(true)}
             />
           ) : (
-            <span className="text-4xl md:text-7xl lg:text-8xl xl:text-9xl font-bold uppercase tracking-wider text-black">
+            <span className="text-8xl md:text-[14rem] lg:text-[16rem] xl:text-[18rem] font-bold uppercase tracking-wider text-black leading-none">
               BUNKER
             </span>
           )}
