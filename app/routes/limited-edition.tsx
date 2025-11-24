@@ -3,6 +3,7 @@ import {type MetaFunction, useRouteLoaderData, Form, useActionData} from '@remix
 import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {RootLoader} from '~/root';
 import {useState} from 'react';
+import {ADMIN_EMAIL} from '~/lib/email';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Bunker Studio | Limited Edition'}];
@@ -21,6 +22,10 @@ export async function action({request}: ActionFunctionArgs) {
   }
 
   // TODO: Implement email submission logic (e.g., send to email service, save to database, etc.)
+  // Send PR inquiry email to: ${ADMIN_EMAIL}
+  // Email should include: email address
+  console.log('PR Inquiry submission:', {email, adminEmail: ADMIN_EMAIL});
+  
   // For now, just return success
   return json({success: true, message: 'Thank you for your inquiry. We will be in touch soon.'});
 }

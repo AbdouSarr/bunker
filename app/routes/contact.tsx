@@ -5,6 +5,7 @@ import type {RootLoader} from '~/root';
 import {useState} from 'react';
 import {Form, useActionData, useNavigation} from '@remix-run/react';
 import type {ActionFunctionArgs} from '@netlify/remix-runtime';
+import {ADMIN_EMAIL} from '~/lib/email';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Bunker Studio | Contact'}];
@@ -39,6 +40,10 @@ export async function action({request}: ActionFunctionArgs) {
   }
 
   // TODO: Implement email sending logic (e.g., send to email service, save to database, etc.)
+  // Send email to: ${ADMIN_EMAIL}
+  // Email should include: name, email, subject, message
+  console.log('Contact form submission:', {name, email, subject, message, adminEmail: ADMIN_EMAIL});
+  
   // For now, just return success
   return json({
     success: true,

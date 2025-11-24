@@ -3,6 +3,7 @@ import {Form, useActionData, useNavigation, useRouteLoaderData} from '@remix-run
 import {useState} from 'react';
 import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {RootLoader} from '~/root';
+import {ADMIN_EMAIL} from '~/lib/email';
 
 export async function loader({context}: LoaderFunctionArgs) {
   // Check if user is already logged in
@@ -102,6 +103,11 @@ export async function action({request, context}: ActionFunctionArgs) {
       );
     }
 
+    // Success - log new signup for admin notification
+    console.log('New customer signup:', {email, firstName, lastName, discountCode, adminEmail: ADMIN_EMAIL});
+    
+    // TODO: Send notification email to ${ADMIN_EMAIL} when new customer signs up
+    
     // Success - return discount code
     return json({
       error: null,
@@ -233,7 +239,7 @@ export default function Signup() {
                 <div>
                   <label
                     htmlFor="firstName"
-                    className="block text-xs uppercase tracking-wider text-black mb-2 text-center"
+                    className="block text-xs uppercase tracking-wider text-black mb-2 text-left"
                   >
                     First Name
                   </label>
@@ -242,7 +248,7 @@ export default function Signup() {
                     id="firstName"
                     name="firstName"
                     required
-                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black text-center"
+                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black text-left"
                     placeholder="FIRST NAME"
                   />
                 </div>
@@ -250,7 +256,7 @@ export default function Signup() {
                 <div>
                   <label
                     htmlFor="lastName"
-                    className="block text-xs uppercase tracking-wider text-black mb-2 text-center"
+                    className="block text-xs uppercase tracking-wider text-black mb-2 text-left"
                   >
                     Last Name
                   </label>
@@ -259,7 +265,7 @@ export default function Signup() {
                     id="lastName"
                     name="lastName"
                     required
-                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black text-center"
+                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black text-left"
                     placeholder="LAST NAME"
                   />
                 </div>
@@ -267,7 +273,7 @@ export default function Signup() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-xs uppercase tracking-wider text-black mb-2 text-center"
+                    className="block text-xs uppercase tracking-wider text-black mb-2 text-left"
                   >
                     Email
                   </label>
@@ -276,7 +282,7 @@ export default function Signup() {
                     id="email"
                     name="email"
                     required
-                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black text-center"
+                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black text-left"
                     placeholder="EMAIL"
                   />
                 </div>
