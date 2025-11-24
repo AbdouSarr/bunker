@@ -81,9 +81,9 @@ export function BalenciagaHeader({
   return (
     <header className="fixed top-0 left-0 right-0 z-[9999] bg-white border-t border-b border-black">
       {/* Single Row Navigation Bar */}
-      <div className="flex items-center justify-between px-3 md:px-6 py-3 md:py-4 relative">
-        {/* Left Navigation Menu - Balenciaga Style with Text Dropdown */}
-        <nav className="flex items-center gap-4 md:gap-6 flex-shrink-0 relative z-50">
+      <div className="flex items-center justify-between px-2 md:px-6 py-2 md:py-4 relative">
+        {/* Left Navigation Menu - Balenciaga Style with Text Dropdown - Compact on mobile */}
+        <nav className="flex items-center gap-1.5 md:gap-6 flex-shrink-0 relative z-50">
           {navigationMenu.map((item) => (
             <div
               key={item.title}
@@ -104,11 +104,11 @@ export function BalenciagaHeader({
                     }
                   }
                 }}
-                className="flex items-center gap-1 text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-0.5 md:gap-1 text-[9px] md:text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap"
               >
                 {item.title}
                 {item.items && item.items.length > 0 && (
-                  <ChevronDown size={12} className="opacity-70" />
+                  <ChevronDown size={10} className="opacity-70 md:w-3 md:h-3" />
                 )}
               </a>
               
@@ -164,7 +164,7 @@ export function BalenciagaHeader({
           ))}
         </nav>
 
-        {/* Center Logo - 2x Larger, clearly visible - Clickable to home */}
+        {/* Center Logo - Original size maintained - Clickable to home */}
         <NavLink
           to="/"
           prefetch="intent"
@@ -189,13 +189,13 @@ export function BalenciagaHeader({
           )}
         </NavLink>
 
-        {/* Right Utility Links & Icons - Compact on mobile */}
-        <nav className="flex items-center gap-2 md:gap-6 flex-shrink-0">
-          {/* Sign Up Link - Visible on all devices */}
+        {/* Right Utility Links & Icons - Very compact on mobile */}
+        <nav className="flex items-center gap-1 md:gap-6 flex-shrink-0 relative z-50">
+          {/* Sign Up Link - Visible on all devices, smaller on mobile */}
           <NavLink
             to="/signup"
             prefetch="intent"
-            className="text-[10px] md:text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity whitespace-nowrap relative z-50"
+            className="text-[8px] md:text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity whitespace-nowrap"
             style={{pointerEvents: 'auto'}}
           >
             SIGN UP
@@ -203,28 +203,28 @@ export function BalenciagaHeader({
           <NavLink
             to="/saved"
             prefetch="intent"
-            className="p-1 hover:opacity-70 transition-opacity text-black relative"
+            className="p-0.5 md:p-1 hover:opacity-70 transition-opacity text-black relative"
             aria-label="Saved items"
           >
-            <Bookmark size={16} strokeWidth={1.5} />
+            <Bookmark size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
             {isClient && savedCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 bg-black text-white text-[8px] md:text-[10px] w-3 h-3 md:w-4 md:h-4 rounded-full flex items-center justify-center">
                 {savedCount}
               </span>
             )}
           </NavLink>
           <button
             onClick={() => open('cart')}
-            className="p-1 hover:opacity-70 transition-opacity relative text-black"
+            className="p-0.5 md:p-1 hover:opacity-70 transition-opacity relative text-black"
             aria-label="Shopping cart"
           >
-            <ShoppingCart size={16} strokeWidth={1.5} />
+            <ShoppingCart size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
             <Suspense fallback={null}>
               <Await resolve={cart}>
                 {(cart) => {
                   if (cart && cart.totalQuantity > 0) {
                     return (
-                      <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                      <span className="absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 bg-black text-white text-[8px] md:text-[10px] w-3 h-3 md:w-4 md:h-4 rounded-full flex items-center justify-center">
                         {cart.totalQuantity}
                       </span>
                     );
