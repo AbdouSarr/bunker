@@ -17,4 +17,5 @@ export {
   Search,
   ZoomIn,
   ZoomOut,
+  Instagram,
 } from 'lucide-react';

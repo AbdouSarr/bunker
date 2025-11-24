@@ -413,9 +413,14 @@ const AudioSpeaker: React.FC<AudioSpeakerProps> = ({ audioEnabled }) => {
       positionalAudio.setLoop(true);
       positionalAudio.setVolume(0.6);
 
-      // Ensure audio context is running before playing
+      // Try to play automatically - handle browser autoplay restrictions
       if (audioEnabled) {
-        positionalAudio.play();
+        try {
+          positionalAudio.play();
+        } catch (error) {
+          // Autoplay was prevented - audio will start on user interaction
+          console.log('Audio autoplay prevented, will start on user interaction');
+        }
       }
     });
 
@@ -432,7 +437,12 @@ const AudioSpeaker: React.FC<AudioSpeakerProps> = ({ audioEnabled }) => {
   useEffect(() => {
     if (audioRef.current && audioRef.current.buffer) {
       if (audioEnabled && !audioRef.current.isPlaying) {
-        audioRef.current.play();
+        try {
+          audioRef.current.play();
+        } catch (error) {
+          // Autoplay was prevented - will start on user interaction
+          console.log('Audio play failed, will start on user interaction');
+        }
       } else if (!audioEnabled && audioRef.current.isPlaying) {
         audioRef.current.stop();
       }
@@ -769,8 +779,14 @@ export const Storefront: React.FC<StorefrontProps> = ({
   shopifyProducts,
   cart,
 }) => {
+  // Check sessionStorage to see if audio should be playing (persist across pages)
+  const [audioEnabled, setAudioEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('audioPlaying') === 'true';
+    }
+    return false;
+  });
   const [selected, setSelected] = useState<SelectedProduct | null>(null);
-  const [audioEnabled, setAudioEnabled] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -779,6 +795,24 @@ export const Storefront: React.FC<StorefrontProps> = ({
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Persist audio state to sessionStorage when it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('audioPlaying', audioEnabled ? 'true' : 'false');
+    }
+  }, [audioEnabled]);
+
+  // Toggle audio function that persists state
+  const toggleAudio = useCallback(() => {
+    setAudioEnabled((prev) => {
+      const newState = !prev;
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('audioPlaying', newState ? 'true' : 'false');
+      }
+      return newState;
+    });
   }, []);
   const introProgress = useRef(0);
   const sceneRef = useRef<THREE.Group | null>(null);
@@ -936,7 +970,7 @@ export const Storefront: React.FC<StorefrontProps> = ({
             onExportScene={exportScene}
             isExporting={isExporting}
             audioEnabled={audioEnabled}
-            onToggleAudio={() => setAudioEnabled(!audioEnabled)}
+            onToggleAudio={toggleAudio}
             introProgress={introProgress}
           />
         </Await>

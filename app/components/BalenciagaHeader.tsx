@@ -164,8 +164,12 @@ export function BalenciagaHeader({
           ))}
         </nav>
 
-        {/* Center Logo - 2x Larger, clearly visible */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex-shrink-0">
+        {/* Center Logo - 2x Larger, clearly visible - Clickable to home */}
+        <NavLink
+          to="/"
+          prefetch="intent"
+          className="absolute left-1/2 -translate-x-1/2 flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
+        >
           {!logoFailed ? (
             <img
               src="/bunker-logo.png"
@@ -183,7 +187,7 @@ export function BalenciagaHeader({
               BUNKER
             </span>
           )}
-        </div>
+        </NavLink>
 
         {/* Right Utility Links & Icons - Compact on mobile */}
         <nav className="flex items-center gap-2 md:gap-6 flex-shrink-0">

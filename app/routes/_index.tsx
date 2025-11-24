@@ -7,6 +7,7 @@ import ProductGrid from '~/components/ProductGrid';
 import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import type {RootLoader} from '~/root';
+import {Instagram} from '~/components/icons';
 
 // Use React.lazy for dynamic import
 const Storefront = lazy(() =>
@@ -130,7 +131,9 @@ export default function Homepage() {
       {/* 3D Experience Section - Full viewport height */}
       <div className="relative" style={{ height: '100dvh', paddingTop: '60px' }}>
         {isClient && !showStorefront && (
-          <LoadingScreen onComplete={() => setShowStorefront(true)} />
+          <LoadingScreen 
+            onComplete={() => setShowStorefront(true)} 
+          />
         )}
         {isClient && showStorefront && (
           <ThreeDErrorBoundary>
@@ -146,6 +149,26 @@ export default function Homepage() {
         <div id="products">
           <ProductGrid products={allProducts} cart={rootData.cart} />
         </div>
+      )}
+
+      {/* Footer with Instagram Link */}
+      {isClient && showStorefront && (
+        <footer className="w-full bg-white border-t border-black py-8">
+          <div className="max-w-[1400px] mx-auto px-4 md:px-6">
+            <div className="flex justify-center items-center">
+              <a
+                href="https://www.instagram.com/bunkerstudiosinc/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-black hover:opacity-70 transition-opacity"
+                aria-label="Follow us on Instagram"
+              >
+                <Instagram size={24} strokeWidth={1.5} />
+                <span className="text-xs uppercase tracking-wider">Instagram</span>
+              </a>
+            </div>
+          </div>
+        </footer>
       )}
     </div>
   );
