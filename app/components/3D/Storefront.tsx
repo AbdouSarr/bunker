@@ -262,8 +262,9 @@ const Product: React.FC<ProductProps> = ({
     // Start individual product animation when global intro is complete
     const baseIntroComplete = introProgress.current >= 1;
     if (baseIntroComplete && !hasStartedAnimation.current) {
-      // Schedule animation start with staggered delay
-      const delay = animationIndex * 80; // 80ms between each product (faster)
+      // Schedule animation start with staggered delay - ensure all products animate
+      // Reduced delay for faster reveal of all products
+      const delay = animationIndex * 60; // 60ms between each product
       setTimeout(() => {
         hasStartedAnimation.current = true;
         elapsedTime.current = 0;
@@ -292,11 +293,16 @@ const Product: React.FC<ProductProps> = ({
     for (let i = 0; i < meshRefs.current.length; i++) {
       const mesh = meshRefs.current[i];
       if (mesh.material) {
-        mesh.material.opacity = THREE.MathUtils.lerp(
-          mesh.material.opacity || 0,
-          finalOpacity,
-          0.05 // Smooth transition
-        );
+        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        materials.forEach((material) => {
+          if ('opacity' in material) {
+            material.opacity = THREE.MathUtils.lerp(
+              material.opacity || 0,
+              finalOpacity,
+              0.05 // Smooth transition
+            );
+          }
+        });
       }
     }
 
@@ -331,8 +337,10 @@ const Product: React.FC<ProductProps> = ({
     });
   }, [data.id, onSelect]);
 
-  const handleClick = (event: THREE.Event) => {
-    event.stopPropagation();
+  const handleClick = (event: any) => {
+    if (event.stopPropagation) {
+      event.stopPropagation();
+    }
     selectProduct();
   };
 
@@ -478,8 +486,12 @@ const Scene: React.FC<SceneProps> = ({
     [invertedControlPoints],
   );
 
-  const front = productDataList.slice(0, 4);
-  const back = productDataList.slice(4);
+  // Distribute products evenly between front and back rows
+  // Ensure all products are visible
+  const totalProducts = productDataList.length;
+  const frontCount = Math.ceil(totalProducts / 2);
+  const front = productDataList.slice(0, frontCount);
+  const back = productDataList.slice(frontCount);
 
   const sampleRow = (
     items: ProductData[],
@@ -934,9 +946,6 @@ export const Storefront: React.FC<StorefrontProps> = ({
       {!selected && (
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none animate-bounce">
           <ChevronDown size={32} className="text-white drop-shadow-lg" strokeWidth={2} />
-          <span className="font-mono text-xs uppercase tracking-wider text-white drop-shadow-lg">
-            See all products
-          </span>
         </div>
       )}
 

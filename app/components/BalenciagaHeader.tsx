@@ -71,8 +71,8 @@ export function BalenciagaHeader({
       title: 'ABOUT',
       url: '/about',
       items: [
-        { title: 'Our Story', url: '/about' },
-        { title: 'Sustainability', url: '/about' },
+        { title: 'Our Story', url: '/about#our-story' },
+        { title: 'Sustainability', url: '/about#sustainability' },
         { title: 'Contact', url: '/contact' },
       ],
     },
@@ -134,6 +134,20 @@ export function BalenciagaHeader({
                               } else {
                                 window.location.href = subItem.url;
                               }
+                            } else if (subItem.url.includes('#')) {
+                              // Handle anchor links (e.g., /about#our-story)
+                              e.preventDefault();
+                              const [path, hash] = subItem.url.split('#');
+                              if (path === window.location.pathname) {
+                                // Same page, just scroll to anchor
+                                const element = document.getElementById(hash);
+                                if (element) {
+                                  element.scrollIntoView({ behavior: 'smooth' });
+                                }
+                              } else {
+                                // Different page, navigate then scroll
+                                window.location.href = subItem.url;
+                              }
                             }
                             setHoveredNav(null);
                           }}
@@ -173,18 +187,19 @@ export function BalenciagaHeader({
 
         {/* Right Utility Links & Icons - Compact on mobile */}
         <nav className="flex items-center gap-2 md:gap-6 flex-shrink-0">
-          {/* Text links hidden on mobile, show icons only */}
+          {/* Sign Up Link - Visible on all devices */}
           <NavLink
             to="/signup"
             prefetch="intent"
-            className="hidden md:block text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity"
+            className="text-[10px] md:text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity whitespace-nowrap"
           >
             SIGN UP
           </NavLink>
+          {/* Login/Account Link - Visible on all devices */}
           <NavLink
             to="/account"
             prefetch="intent"
-            className="hidden md:block text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity"
+            className="text-[10px] md:text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity whitespace-nowrap"
           >
             <Suspense fallback="LOGIN">
               <Await resolve={isLoggedIn} errorElement="LOGIN">

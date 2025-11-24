@@ -1,11 +1,15 @@
-import {type MetaFunction} from '@remix-run/react';
+import {json, type LoaderFunctionArgs} from '@netlify/remix-runtime';
+import {type MetaFunction, useRouteLoaderData} from '@remix-run/react';
 import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {RootLoader} from '~/root';
-import {useRouteLoaderData} from '@remix-run/react';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Bunker Studio | About'}];
 };
+
+export async function loader({}: LoaderFunctionArgs) {
+  return json({});
+}
 
 export default function About() {
   const rootData = useRouteLoaderData<RootLoader>('root');
@@ -33,7 +37,7 @@ export default function About() {
           {/* Main Content Sections */}
           <div className="space-y-16">
             {/* Our Story Section */}
-            <section>
+            <section id="our-story">
               <h2 className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black mb-6">
                 Our Story
               </h2>
@@ -57,7 +61,7 @@ export default function About() {
             </section>
 
             {/* Sustainability Section */}
-            <section>
+            <section id="sustainability">
               <h2 className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black mb-6">
                 Sustainability
               </h2>
