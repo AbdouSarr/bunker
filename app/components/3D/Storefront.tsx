@@ -779,13 +779,8 @@ export const Storefront: React.FC<StorefrontProps> = ({
   shopifyProducts,
   cart,
 }) => {
-  // Check sessionStorage to see if audio should be playing (persist across pages)
-  const [audioEnabled, setAudioEnabled] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('audioPlaying') === 'true';
-    }
-    return false;
-  });
+  // Audio starts as OFF - user must manually click to play (no autoplay)
+  const [audioEnabled, setAudioEnabled] = useState(false);
   const [selected, setSelected] = useState<SelectedProduct | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -797,22 +792,9 @@ export const Storefront: React.FC<StorefrontProps> = ({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Persist audio state to sessionStorage when it changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('audioPlaying', audioEnabled ? 'true' : 'false');
-    }
-  }, [audioEnabled]);
-
-  // Toggle audio function that persists state
+  // Simple toggle audio function - no persistence, always requires manual click
   const toggleAudio = useCallback(() => {
-    setAudioEnabled((prev) => {
-      const newState = !prev;
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('audioPlaying', newState ? 'true' : 'false');
-      }
-      return newState;
-    });
+    setAudioEnabled((prev) => !prev);
   }, []);
   const introProgress = useRef(0);
   const sceneRef = useRef<THREE.Group | null>(null);

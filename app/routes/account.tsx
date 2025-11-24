@@ -1,4 +1,4 @@
-import {json, type LoaderFunctionArgs} from '@netlify/remix-runtime';
+import {json, redirect, type LoaderFunctionArgs} from '@netlify/remix-runtime';
 import {Form, NavLink, Outlet, useLoaderData} from '@remix-run/react';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
 
@@ -7,6 +7,14 @@ export function shouldRevalidate() {
 }
 
 export async function loader({context}: LoaderFunctionArgs) {
+  // Check if user is logged in first
+  const isLoggedIn = await context.customerAccount.isLoggedIn();
+  
+  if (!isLoggedIn) {
+    // Redirect to login if not authenticated
+    throw redirect('/account/login');
+  }
+
   const {data, errors} = await context.customerAccount.query(
     CUSTOMER_DETAILS_QUERY,
   );
