@@ -249,12 +249,14 @@ export default function Product() {
                     )}
                   </button>
 
-                  {/* Main Image Container - Shows complete product/model head to toe with click zoom */}
+                  {/* Main Image Container - Shows complete product/model head to toe with click zoom - Zoomed out more */}
                   <div 
                     className="absolute inset-0 flex items-center justify-center"
                     style={{
-                      paddingTop: imageNodes.length > 1 ? '0' : '0',
-                      paddingBottom: imageNodes.length > 1 ? '80px' : '0',
+                      paddingTop: imageNodes.length > 1 ? '40px' : '40px',
+                      paddingBottom: imageNodes.length > 1 ? '120px' : '40px',
+                      paddingLeft: '40px',
+                      paddingRight: '40px',
                     }}
                     onMouseMove={(e) => {
                       if (isZoomed) {
@@ -270,8 +272,8 @@ export default function Product() {
                       alt={imageNodes[currentImageIndex].altText || title}
                       className="block transition-transform duration-200 ease-out"
                       style={{
-                        maxWidth: '100%',
-                        maxHeight: imageNodes.length > 1 ? 'calc(100% - 80px)' : '100%',
+                        maxWidth: '85%',
+                        maxHeight: imageNodes.length > 1 ? 'calc(100% - 160px)' : 'calc(100% - 80px)',
                         width: 'auto',
                         height: 'auto',
                         objectFit: 'contain',
@@ -325,9 +327,9 @@ export default function Product() {
                     <button
                       key={image.id || `image-${index}`}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-16 h-16 border transition-all ${
+                      className={`flex-shrink-0 w-20 h-20 border transition-all bg-white ${
                         index === currentImageIndex
-                          ? 'border-black'
+                          ? 'border-black border-2'
                           : 'border-transparent hover:border-gray-300'
                       }`}
                       aria-label={`View image ${index + 1} of ${imageNodes.length}`}
@@ -336,6 +338,12 @@ export default function Product() {
                         src={image.url}
                         alt={image.altText || `${title} - Image ${index + 1}`}
                         className="w-full h-full object-contain"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'contain',
+                          objectPosition: 'center',
+                        }}
                         loading="lazy"
                       />
                     </button>

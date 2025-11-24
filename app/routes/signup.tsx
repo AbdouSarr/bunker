@@ -151,9 +151,9 @@ export default function Signup() {
         />
       )}
 
-      {/* Signup Form */}
+      {/* Signup Form - Centered to align with BUNKER logo */}
       <div className="flex items-center justify-center min-h-screen pt-20 px-4">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md mx-auto">
           {/* Success Message */}
           {showSuccess && actionData?.success && (
             <div className="mb-8 space-y-6">
@@ -225,7 +225,7 @@ export default function Signup() {
 
               <Form method="post" className="space-y-6">
                 {actionData?.error && (
-                  <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm uppercase tracking-wider">
+                  <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm uppercase tracking-wider text-center">
                     {actionData.error}
                   </div>
                 )}
@@ -233,7 +233,7 @@ export default function Signup() {
                 <div>
                   <label
                     htmlFor="firstName"
-                    className="block text-xs uppercase tracking-wider text-black mb-2"
+                    className="block text-xs uppercase tracking-wider text-black mb-2 text-center"
                   >
                     First Name
                   </label>
@@ -242,7 +242,7 @@ export default function Signup() {
                     id="firstName"
                     name="firstName"
                     required
-                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black text-center"
                     placeholder="FIRST NAME"
                   />
                 </div>
@@ -250,7 +250,7 @@ export default function Signup() {
                 <div>
                   <label
                     htmlFor="lastName"
-                    className="block text-xs uppercase tracking-wider text-black mb-2"
+                    className="block text-xs uppercase tracking-wider text-black mb-2 text-center"
                   >
                     Last Name
                   </label>
@@ -259,7 +259,7 @@ export default function Signup() {
                     id="lastName"
                     name="lastName"
                     required
-                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black text-center"
                     placeholder="LAST NAME"
                   />
                 </div>
@@ -267,7 +267,7 @@ export default function Signup() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-xs uppercase tracking-wider text-black mb-2"
+                    className="block text-xs uppercase tracking-wider text-black mb-2 text-center"
                   >
                     Email
                   </label>
@@ -276,7 +276,7 @@ export default function Signup() {
                     id="email"
                     name="email"
                     required
-                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-3 border border-black bg-white text-black text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black text-center"
                     placeholder="EMAIL"
                   />
                 </div>

@@ -129,11 +129,18 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
         >
           {imageNodes.length > 0 ? (
             <>
-              {/* Main Image - Zoomed out to show full product */}
+              {/* Main Image - Fixed size to ensure all images are exactly the same - Zoomed out to show full model */}
               <img
                 src={imageNodes[currentImageIndex].url}
                 alt={imageNodes[currentImageIndex].altText || title}
-                className="w-full h-full object-contain transition-opacity duration-500"
+                className="w-full h-full object-contain transition-opacity duration-500 bg-white"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'center',
+                  padding: '8px',
+                }}
               />
               
               {/* Image Navigation Arrows - Show when multiple images */}

@@ -200,21 +200,6 @@ export function BalenciagaHeader({
           >
             SIGN UP
           </NavLink>
-          {/* Login/Account Link - Visible on all devices */}
-          <Suspense fallback={<NavLink to="/account/login" className="text-[10px] md:text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity whitespace-nowrap relative z-50" style={{pointerEvents: 'auto'}}>LOGIN</NavLink>}>
-            <Await resolve={isLoggedIn} errorElement={<NavLink to="/account/login" className="text-[10px] md:text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity whitespace-nowrap relative z-50" style={{pointerEvents: 'auto'}}>LOGIN</NavLink>}>
-              {(isLoggedIn) => (
-                <NavLink
-                  to={isLoggedIn ? "/account/profile" : "/account/login"}
-                  prefetch="intent"
-                  className="text-[10px] md:text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity whitespace-nowrap relative z-50"
-                  style={{pointerEvents: 'auto'}}
-                >
-                  {isLoggedIn ? 'ACCOUNT' : 'LOGIN'}
-                </NavLink>
-              )}
-            </Await>
-          </Suspense>
           <NavLink
             to="/saved"
             prefetch="intent"
