@@ -1,6 +1,7 @@
 import {json, type LoaderFunctionArgs} from '@netlify/remix-runtime';
 import {type MetaFunction, useRouteLoaderData} from '@remix-run/react';
 import {BalenciagaHeader} from '~/components/BalenciagaHeader';
+import AudioPlayer from '~/components/AudioPlayer';
 import type {RootLoader} from '~/root';
 
 export const meta: MetaFunction = () => {
@@ -33,6 +34,13 @@ export default function About() {
           <h1 className="text-4xl md:text-5xl font-normal uppercase tracking-wider text-black mb-12 text-center">
             About Bunker
           </h1>
+
+          {/* Audio Player - Same style as main page */}
+          <div className="mb-12 flex justify-center">
+            <AudioPlayer 
+              src="/audio/about.mp3"
+            />
+          </div>
 
           {/* Main Content Sections */}
           <div className="space-y-16">

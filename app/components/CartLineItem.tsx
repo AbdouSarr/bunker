@@ -38,22 +38,24 @@ export function CartLineItem({
   return (
     <div key={id} className={containerClass}>
       <div className="flex gap-4">
-        {/* Image - show skeleton if loading */}
+        {/* Image - show skeleton if loading - Full garment visible */}
         <div className="flex-shrink-0">
           {image && hasData && !isOptimistic ? (
-            <Image
-              alt={title || 'Product'}
-              aspectRatio="1/1"
-              data={image}
-              height={layout === 'aside' ? 60 : 80}
-              loading="lazy"
-              width={layout === 'aside' ? 60 : 80}
-              className="bg-gray-50 border border-gray-200"
-            />
+            <div className={`bg-gray-50 border border-gray-200 overflow-hidden ${
+              layout === 'aside' ? 'w-[120px] h-[160px]' : 'w-[160px] h-[220px]'
+            }`}>
+              <Image
+                alt={title || 'Product'}
+                data={image}
+                loading="lazy"
+                className="w-full h-full object-contain"
+                sizes="(min-width: 1024px) 160px, 120px"
+              />
+            </div>
           ) : (
             <div
               className={`bg-gray-200 border border-gray-200 animate-pulse ${
-                layout === 'aside' ? 'w-[60px] h-[60px]' : 'w-[80px] h-[80px]'
+                layout === 'aside' ? 'w-[120px] h-[160px]' : 'w-[160px] h-[220px]'
               }`}
             />
           )}

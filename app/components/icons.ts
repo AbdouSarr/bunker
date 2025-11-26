@@ -18,4 +18,6 @@ export {
   ZoomIn,
   ZoomOut,
   Instagram,
+  Play,
+  Pause,
 } from 'lucide-react';
