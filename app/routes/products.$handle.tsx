@@ -12,9 +12,6 @@ import {getVariantUrl} from '~/lib/variants';
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductForm} from '~/components/ProductForm';
 import {Bookmark, ChevronLeft, ChevronRight, ZoomIn, ZoomOut} from '~/components/icons';
-import {BalenciagaHeader} from '~/components/BalenciagaHeader';
-import type {RootLoader} from '~/root';
-import {useRouteLoaderData} from '@remix-run/react';
 import {useSavedItems} from '~/hooks/useSavedItems';
 import {saveItem, removeItem} from '~/lib/savedItems';
 
@@ -133,7 +130,6 @@ function redirectToFirstVariant({
 
 export default function Product() {
   const {product, variants} = useLoaderData<typeof loader>();
-  const rootData = useRouteLoaderData<RootLoader>('root');
   const selectedVariant = useOptimisticVariant(
     product.selectedVariant,
     variants,
@@ -166,7 +162,7 @@ export default function Product() {
   // Keyboard navigation for images
   useEffect(() => {
     if (imageNodes.length <= 1) return;
-    
+
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
@@ -183,16 +179,6 @@ export default function Product() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      {rootData?.header && (
-        <BalenciagaHeader
-          header={rootData.header}
-          cart={rootData.cart}
-          isLoggedIn={rootData.isLoggedIn}
-          publicStoreDomain={rootData.publicStoreDomain}
-        />
-      )}
-
       {/* Product Page - Exact Balenciaga Layout */}
       <div className="pt-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">

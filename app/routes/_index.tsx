@@ -1,13 +1,12 @@
 import {defer, type LoaderFunctionArgs} from '@netlify/remix-runtime';
 import {Await, useLoaderData, useRouteLoaderData, Link, type MetaFunction} from '@remix-run/react';
-import {useState, useEffect, lazy, Suspense} from 'react';
+import {useState, useEffect, lazy, Suspense, useCallback} from 'react';
 import LoadingScreen from '~/components/3D/LoadingScreen';
 import {ThreeDErrorBoundary} from '~/components/ErrorBoundary';
 import ProductGrid from '~/components/ProductGrid';
-import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import type {RootLoader} from '~/root';
-import {Instagram} from '~/components/icons';
+import {useAudio} from '~/contexts/AudioContext';
 
 // Use React.lazy for dynamic import
 const Storefront = lazy(() =>
@@ -106,12 +105,20 @@ export async function loader({context}: LoaderFunctionArgs) {
 export default function Homepage() {
   const {products3D, allProducts} = useLoaderData<typeof loader>();
   const rootData = useRouteLoaderData<RootLoader>('root');
+  const {audioEnabled, toggleAudio} = useAudio();
   const [isClient, setIsClient] = useState(false);
   const [showStorefront, setShowStorefront] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (showStorefront) {
+      // Emit event to notify PageLayout that storefront has loaded
+      window.dispatchEvent(new Event('storefrontLoaded'));
+    }
+  }, [showStorefront]);
 
   // Handle case where rootData might be undefined
   if (!rootData) {
@@ -120,25 +127,22 @@ export default function Homepage() {
 
   return (
     <div className="homepage-container w-screen bg-white relative">
-      {/* Balenciaga-style Header - Fixed at top */}
-      <BalenciagaHeader
-        header={rootData.header}
-        cart={rootData.cart}
-        isLoggedIn={rootData.isLoggedIn}
-        publicStoreDomain={rootData.publicStoreDomain}
-      />
-      
-      {/* 3D Experience Section - Full viewport height */}
-      <div className="relative" style={{ height: '100dvh', paddingTop: '60px' }}>
+      {/* 3D Experience Section - Full viewport height accounting for Safari UI */}
+      <div className="relative w-full h-[100dvh]">
         {isClient && !showStorefront && (
-          <LoadingScreen 
-            onComplete={() => setShowStorefront(true)} 
+          <LoadingScreen
+            onComplete={() => setShowStorefront(true)}
           />
         )}
         {isClient && showStorefront && (
           <ThreeDErrorBoundary>
             <Suspense fallback={null}>
-              <Storefront shopifyProducts={products3D} cart={rootData.cart} />
+              <Storefront
+                shopifyProducts={products3D}
+                cart={rootData.cart}
+                audioEnabled={audioEnabled}
+                onToggleAudio={toggleAudio}
+              />
             </Suspense>
           </ThreeDErrorBoundary>
         )}
@@ -149,26 +153,6 @@ export default function Homepage() {
         <div id="products">
           <ProductGrid products={allProducts} cart={rootData.cart} />
         </div>
-      )}
-
-      {/* Footer with Instagram Link */}
-      {isClient && showStorefront && (
-        <footer className="w-full bg-white border-t border-black py-8">
-          <div className="max-w-[1400px] mx-auto px-4 md:px-6">
-            <div className="flex justify-center items-center">
-              <a
-                href="https://www.instagram.com/bunkerstudiosinc/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-black hover:opacity-70 transition-opacity"
-                aria-label="Follow us on Instagram"
-              >
-                <Instagram size={24} strokeWidth={1.5} />
-                <span className="text-xs uppercase tracking-wider">Instagram</span>
-              </a>
-            </div>
-          </div>
-        </footer>
       )}
     </div>
   );

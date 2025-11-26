@@ -136,7 +136,7 @@ function ProductCard({product}: ProductCardProps) {
     >
       {/* NAME AND PRICE DIV */}
       <div 
-        className="flex justify-between items-center mb-3 transition-all duration-300 ease-out"
+        className="flex gap-14 justify-between items-center mb-3 transition-all duration-300 ease-out"
         style={{
           opacity: isVisible ? 1 : 0,
           transform: `translateY(${isVisible ? 0 : 10}px)`,
@@ -144,8 +144,8 @@ function ProductCard({product}: ProductCardProps) {
         }}
       >
         <div>
-          <div className="text-xs tracking-wider opacity-80 mb-0">{vendor}</div>
-          <div className="text-md md:text-lg leading-tight">{title}</div>
+          <div className="text-xs tracking-wider opacity-80 mb-0.5">{vendor}</div>
+          <div className="text-sm md:text-lg leading-tight">{title}</div>
         </div>
         {price && (
           <div className="text-lg font-bold tracking-wider">
@@ -264,7 +264,7 @@ function ProductCard({product}: ProductCardProps) {
           text-black font-bold text-sm tracking-wider
           rounded-md border-none cursor-pointer
           transition-all duration-300 ease-out
-          min-h-[48px]
+          max-h-[38px]
         "
         style={{
           opacity: isVisible ? 1 : 0,

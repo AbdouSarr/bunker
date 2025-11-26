@@ -39,82 +39,78 @@ export function CartLineItem({
     <div key={id} className={containerClass}>
       <div className="flex gap-4">
         {/* Image - show skeleton if loading - Full garment visible */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 self-stretch">
           {image && hasData && !isOptimistic ? (
-            <div className={`bg-gray-50 border border-gray-200 overflow-hidden ${
-              layout === 'aside' ? 'w-[120px] h-[160px]' : 'w-[160px] h-[220px]'
+            <div className={`bg-gray-50 border border-gray-200 overflow-hidden h-full ${
+              layout === 'aside' ? 'w-[80px]' : 'w-[120px]'
             }`}>
               <Image
                 alt={title || 'Product'}
                 data={image}
                 loading="lazy"
-                className="w-full h-full object-contain"
-                sizes="(min-width: 1024px) 160px, 120px"
+                className="w-full h-full object-cover"
+                sizes="(min-width: 1024px) 120px, 80px"
               />
             </div>
           ) : (
             <div
-              className={`bg-gray-200 border border-gray-200 animate-pulse ${
-                layout === 'aside' ? 'w-[120px] h-[160px]' : 'w-[160px] h-[220px]'
+              className={`bg-gray-200 border border-gray-200 animate-pulse h-full ${
+                layout === 'aside' ? 'w-[80px]' : 'w-[120px]'
               }`}
             />
           )}
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="mb-3">
-            {/* Product title - show skeleton if loading */}
-            {product?.title && hasData && !isOptimistic ? (
-              <Link
-                prefetch="intent"
-                to={lineItemUrl}
-                onClick={() => {
-                  if (layout === 'aside') {
-                    close();
-                  }
-                }}
-                className="text-black hover:text-gray-600 font-medium uppercase tracking-wide block"
-              >
-                {product.title}
-              </Link>
-            ) : (
-              <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse" />
-            )}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* Product title - show skeleton if loading */}
+          {product?.title && hasData && !isOptimistic ? (
+            <Link
+              prefetch="intent"
+              to={lineItemUrl}
+              onClick={() => {
+                if (layout === 'aside') {
+                  close();
+                }
+              }}
+              className="text-black hover:text-gray-600 font-medium uppercase tracking-wide block mb-2"
+            >
+              {product.title}
+            </Link>
+          ) : (
+            <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse mb-2" />
+          )}
 
-            {/* Variant options - show skeleton if loading */}
-            {selectedOptions && selectedOptions.length > 0 && hasData && !isOptimistic ? (
-              <div className="mt-2 space-y-1">
-                {selectedOptions.map((option) => (
-                  <div
-                    key={option.name}
-                    className="text-xs text-gray-500 uppercase tracking-wider"
-                  >
-                    {option.name}: {option.value}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="mt-2">
-                <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse" />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <CartLineQuantity line={line} layout={layout} />
-
-              {/* Price - show skeleton if loading */}
-              {line?.cost?.totalAmount && hasData && !isOptimistic ? (
-                <div className="text-right">
-                  <ProductPrice price={line.cost.totalAmount} />
+          {/* Variant options - show skeleton if loading */}
+          {selectedOptions && selectedOptions.length > 0 && hasData && !isOptimistic ? (
+            <div className="space-y-1 mb-3">
+              {selectedOptions.map((option) => (
+                <div
+                  key={option.name}
+                  className="text-xs text-gray-500 uppercase tracking-wider"
+                >
+                  {option.name}: {option.value}
                 </div>
-              ) : (
-                <div className="text-right">
-                  <div className="h-5 bg-gray-200 rounded w-16 animate-pulse" />
-                </div>
-              )}
+              ))}
             </div>
+          ) : (
+            <div className="mb-3">
+              <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse" />
+            </div>
+          )}
+
+          {/* Price - show skeleton if loading */}
+          {line?.cost?.totalAmount && hasData && !isOptimistic ? (
+            <div className="mb-2">
+              <ProductPrice price={line.cost.totalAmount} />
+            </div>
+          ) : (
+            <div className="mb-2">
+              <div className="h-5 bg-gray-200 rounded w-16 animate-pulse" />
+            </div>
+          )}
+
+          <div className="mt-auto space-y-2">
+            <CartLineQuantity line={line} layout={layout} />
             <CartLineRemoveButton lineIds={[id]} disabled={!!isOptimistic} isLoading={isOptimistic} />
           </div>
         </div>
@@ -142,16 +138,16 @@ function CartLineQuantity({
     <div className="flex items-center gap-4">
       <div className="flex items-center border border-gray-300">
         {quantity === 1 ? (
-          <button
-            aria-label="Remove item"
-            disabled={!!isOptimistic}
-            className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-30 font-mono"
-            onClick={() => {
-              // This button is used when quantity is 1, but we'll handle the remove action in the parent component
-            }}
-          >
-            -
-          </button>
+          <CartLineRemoveButton lineIds={[lineId]} disabled={!!isOptimistic}>
+            <button
+              type="submit"
+              aria-label="Remove item"
+              disabled={!!isOptimistic}
+              className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-30 font-mono"
+            >
+              -
+            </button>
+          </CartLineRemoveButton>
         ) : (
           <CartLineUpdateButton lines={[{id: lineId, quantity: prevQuantity}]}>
             <button

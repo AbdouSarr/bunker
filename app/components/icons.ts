@@ -20,4 +20,6 @@ export {
   Instagram,
   Play,
   Pause,
+  X,
+  Menu,
 } from 'lucide-react';

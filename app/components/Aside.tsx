@@ -1,6 +1,6 @@
 import {createContext, type ReactNode, useContext, useState} from 'react';
 
-type AsideType = 'search' | 'cart' | 'mobile' | 'closed';
+type AsideType = 'search' | 'cart' | 'mobile' | 'saved' | 'closed';
 type AsideContextValue = {
   type: AsideType;
   open: (mode: AsideType) => void;
@@ -28,6 +28,7 @@ export function Aside({
 }) {
   const {type: activeType, close} = useAside();
   const expanded = type === activeType;
+  const isLeftSide = type === 'mobile';
 
   return (
     <div
@@ -36,7 +37,7 @@ export function Aside({
       role="dialog"
     >
       <button className="close-outside" onClick={close} />
-      <aside>
+      <aside className={isLeftSide ? 'aside-left' : 'aside-right'}>
         <header>
           <h3>{heading}</h3>
           <button className="close reset" onClick={close}>

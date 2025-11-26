@@ -44,10 +44,31 @@ aside {
   height: 100dvh;
   width: min(var(--aside-width), 100vw);
   position: fixed;
-  right: calc(-1 * var(--aside-width));
   top: 0;
+  padding-top: var(--header-height);
   transition: transform 200ms ease-in-out;
   z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile Safari safe area support */
+@supports (padding: max(0px)) {
+  aside {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Right-side aside (cart, search) */
+aside.aside-right {
+  right: calc(-1 * var(--aside-width));
+  left: auto;
+}
+
+/* Left-side aside (mobile menu) */
+aside.aside-left {
+  left: calc(-1 * var(--aside-width));
+  right: auto;
 }
 
 aside header {
@@ -57,6 +78,7 @@ aside header {
   height: var(--header-height);
   justify-content: space-between;
   padding: 0 20px;
+  flex-shrink: 0;
 }
 
 aside header h3 {
@@ -82,6 +104,10 @@ aside header h2 {
 
 aside main {
   margin: 1rem;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 aside p {
@@ -116,9 +142,19 @@ aside li {
   border: none;
   color: transparent;
   height: 100%;
-  left: 0;
   position: absolute;
   top: 0;
+}
+
+/* Close button for right-side asides */
+.overlay:has(aside.aside-right) .close-outside {
+  left: 0;
+  width: calc(100% - var(--aside-width));
+}
+
+/* Close button for left-side asides */
+.overlay:has(aside.aside-left) .close-outside {
+  right: 0;
   width: calc(100% - var(--aside-width));
 }
 
@@ -138,9 +174,13 @@ aside li {
   pointer-events: auto;
   visibility: visible;
 }
-/* reveal aside */
-.overlay.expanded aside {
+/* reveal aside - right side slides in from right */
+.overlay.expanded aside.aside-right {
   transform: translateX(calc(var(--aside-width) * -1));
+}
+/* reveal aside - left side slides in from left */
+.overlay.expanded aside.aside-left {
+  transform: translateX(calc(var(--aside-width)));
 }
 
 button.reset {
@@ -379,6 +419,19 @@ button.reset:hover:not(:has(> *)) {
   grid-gap: 1.5rem;
   grid-template-columns: repeat(2, 1fr);
   @media (min-width: 45em) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Product Grid - 4 columns on desktop */
+.product-grid-custom {
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 1024px) {
+  .product-grid-custom {
     grid-template-columns: repeat(4, 1fr);
   }
 }

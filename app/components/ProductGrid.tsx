@@ -1,4 +1,6 @@
+import {useState} from 'react';
 import ProductGridCard from '~/components/ProductGridCard';
+import {ProductModal} from '~/components/ProductModal';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 
@@ -8,23 +10,40 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({products}: ProductGridProps) {
+  const [selectedProduct, setSelectedProduct] = useState<Product3DDataFragment | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleProductClick = (product: Product3DDataFragment) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
+
   return (
-    <section id="products" className="w-full bg-white py-12 md:py-16">
-      <div className="max-w-[1400px] mx-auto px-4 md:px-6">
+    <section id="products" className="w-full bg-white">
+      <div className="w-full px-0">
         {/* Product Count */}
-        <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black" style={{fontWeight: 'normal'}}>
+        <div className="flex items-center justify-between px-4 pt-4 pb-2 md:px-6">
+          <p className="text-lg md:text-3xl font-normal uppercase tracking-wider text-black" style={{fontWeight: 'normal'}}>
             READY-TO-WEAR
-          </h2>
-          <span className="text-xs uppercase tracking-wider text-black">
+          </p>
+          <p className="text-xs uppercase tracking-wider text-black">
             {products.length} {products.length === 1 ? 'Product' : 'Products'}
-          </span>
+          </p>
         </div>
 
         {/* Product Grid - Exact Balenciaga layout with borders - 4 columns on desktop */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-l border-t border-black">
+        <div className="product-grid-custom border-l border-t border-black">
           {products.map((product) => (
-            <ProductGridCard key={product.id} product={product} />
+            <ProductGridCard
+              key={product.id}
+              product={product}
+              onProductClick={handleProductClick}
+            />
           ))}
         </div>
 
@@ -37,6 +56,13 @@ export default function ProductGrid({products}: ProductGridProps) {
           </div>
         )}
       </div>
+
+      {/* Product Modal */}
+      <ProductModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </section>
   );
 }

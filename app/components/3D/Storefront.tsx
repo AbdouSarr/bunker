@@ -80,6 +80,54 @@ const transformShopifyData = (
 // 3D Components
 //================================================================
 
+// TapRaycaster - performs raycasting from tap coordinates passed via ref
+interface TapRaycasterProps {
+  pendingTap: React.MutableRefObject<{ x: number; y: number } | null>;
+  onProductTap: (productId: string) => void;
+  productMeshes: React.MutableRefObject<Map<string, THREE.Object3D>>;
+}
+
+const TapRaycaster: React.FC<TapRaycasterProps> = ({ pendingTap, onProductTap, productMeshes }) => {
+  const { camera, size } = useThree();
+  const raycaster = useMemo(() => new THREE.Raycaster(), []);
+
+  useFrame(() => {
+    if (!pendingTap.current) return;
+
+    const { x, y } = pendingTap.current;
+    pendingTap.current = null; // Consume the tap
+
+    // Convert screen coordinates to normalized device coordinates (-1 to +1)
+    const ndc = new THREE.Vector2(
+      (x / size.width) * 2 - 1,
+      -(y / size.height) * 2 + 1
+    );
+
+    raycaster.setFromCamera(ndc, camera);
+
+    // Collect all product meshes for intersection test
+    const meshes: THREE.Object3D[] = Array.from(productMeshes.current.values());
+    if (meshes.length === 0) return;
+
+    const intersects = raycaster.intersectObjects(meshes, true);
+
+    if (intersects.length > 0) {
+      // Walk up to find which product group was hit
+      let obj: THREE.Object3D | null = intersects[0].object;
+      while (obj) {
+        const productId = (obj.userData as any)?.productId;
+        if (productId) {
+          onProductTap(productId);
+          return;
+        }
+        obj = obj.parent;
+      }
+    }
+  });
+
+  return null;
+};
+
 interface CameraControllerProps {
   selected: SelectedProduct | null;
   introProgress: React.MutableRefObject<number>;
@@ -168,6 +216,7 @@ interface ProductProps {
   introProgress: MutableRefObject<number>;
   selected: SelectedProduct | null;
   onRegisterRef?: (productId: string, selectFn: () => void) => void;
+  onRegisterMesh?: (productId: string, mesh: THREE.Object3D | null) => void;
   hasSelection: boolean;
   animationIndex: number; // Add index for sequential animation
 }
@@ -180,6 +229,7 @@ const Product: React.FC<ProductProps> = ({
   introProgress,
   selected,
   onRegisterRef,
+  onRegisterMesh,
   hasSelection,
   animationIndex,
 }) => {
@@ -351,6 +401,21 @@ const Product: React.FC<ProductProps> = ({
     }
   }, [data.id, selectProduct, onRegisterRef]);
 
+  // Register mesh for tap raycasting and set userData for identification
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.userData.productId = data.id;
+      if (onRegisterMesh) {
+        onRegisterMesh(data.id, ref.current);
+      }
+    }
+    return () => {
+      if (onRegisterMesh) {
+        onRegisterMesh(data.id, null);
+      }
+    };
+  }, [data.id, onRegisterMesh]);
+
   useEffect(() => {
     if (isSelected) {
       rotationSpeed.current = 0.4;
@@ -460,6 +525,7 @@ interface SceneProps {
   productDataList: ProductData[];
   sceneRef: MutableRefObject<THREE.Group | null>;
   onRegisterProductRef: (productId: string, selectFn: () => void) => void;
+  onRegisterProductMesh: (productId: string, mesh: THREE.Object3D | null) => void;
   // REFACTOR: Add worldOffset to position the main content group
   worldOffset: [number, number, number];
 }
@@ -472,6 +538,7 @@ const Scene: React.FC<SceneProps> = ({
   productDataList,
   sceneRef,
   onRegisterProductRef,
+  onRegisterProductMesh,
   worldOffset,
 }) => {
   const lightPulse = useRef(0);
@@ -655,6 +722,7 @@ const Scene: React.FC<SceneProps> = ({
                 introProgress={introProgress}
                 selected={selected}
                 onRegisterRef={onRegisterProductRef}
+                onRegisterMesh={onRegisterProductMesh}
                 hasSelection={!!selected}
                 animationIndex={index}
               />
@@ -672,30 +740,22 @@ const Scene: React.FC<SceneProps> = ({
 interface StorefrontProps {
   shopifyProducts: ShopifyProduct[];
   cart: Promise<CartApiQueryFragment | null>;
+  audioEnabled: boolean;
+  onToggleAudio: () => void;
 }
 
-// Updated TopBar component with real Lucide icons
+// Updated TopBar component - only shows back button when product selected
 function TopBar({
   selected,
   onBack,
-  onExportScene,
-  isExporting,
-  audioEnabled,
-  onToggleAudio,
   introProgress,
 }: {
   selected: SelectedProduct | null;
   onBack: () => void;
-  onExportScene: () => void;
-  isExporting: boolean;
-  audioEnabled: boolean;
-  onToggleAudio: () => void;
   introProgress: MutableRefObject<number>;
 }) {
-  const { open } = useAside();
-  const cart = useAsyncValue() as CartApiQueryFragment | null;
   const [buttonsVisible, setButtonsVisible] = useState(false);
-  
+
   // Monitor intro progress and trigger button animation
   useEffect(() => {
     const checkIntroProgress = () => {
@@ -703,17 +763,15 @@ function TopBar({
         setButtonsVisible(true);
       }
     };
-    
+
     const interval = setInterval(checkIntroProgress, 50); // Check every 50ms
     return () => clearInterval(interval);
   }, [introProgress, buttonsVisible]);
 
   const buttonBaseClasses = "backdrop-blur-md rounded-lg h-10 flex items-center justify-center transition-all duration-300";
-  const cartButtonClasses = "backdrop-blur-md rounded-lg h-10 px-3 flex items-center justify-center transition-all duration-300";
 
   return (
-    <div className="absolute top-4 left-4 right-4 z-50 flex justify-between items-center pointer-events-none">
-      {/* Wrapper for buttons to enable pointer events */}
+    <div className="absolute top-16 md:top-20 left-4 right-4 z-50 flex justify-between items-center pointer-events-none">
       {/* Left side - Back button */}
       <div className="pointer-events-auto">
         {selected && (
@@ -730,46 +788,8 @@ function TopBar({
         )}
       </div>
 
-      {/* Right side - Action buttons */}
+      {/* Right side - empty now, buttons moved to header */}
       <div className="flex gap-2 pointer-events-auto">
-        {/* <button
-          onClick={onExportScene}
-          disabled={isExporting}
-          className={`${buttonBaseClasses} w-10 bg-blue-500/70 text-white hover:bg-blue-600/70 disabled:opacity-50 disabled:cursor-not-allowed`}
-          style={{
-            opacity: buttonsVisible ? 1 : 0,
-            transform: `translateY(${buttonsVisible ? 0 : -10}px)`,
-            transitionDelay: '100ms'
-          }}
-        >
-          <Save size={16} />
-        </button> */}
-
-        <button
-          onClick={onToggleAudio}
-          className={`${buttonBaseClasses} w-10 bg-black/50 text-white hover:bg-black/70`}
-          style={{
-            opacity: buttonsVisible ? 1 : 0,
-            transform: `translateY(${buttonsVisible ? 0 : -10}px)`,
-            transitionDelay: '200ms'
-          }}
-        >
-          {audioEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-        </button>
-
-        <button
-          onClick={() => open('cart')}
-          className={`${cartButtonClasses} bg-black/50 text-white hover:bg-black/70 text-xs font-bold whitespace-nowrap`}
-          style={{
-            opacity: buttonsVisible ? 1 : 0,
-            transform: `translateY(${buttonsVisible ? 0 : -10}px)`,
-            transitionDelay: '300ms'
-          }}
-        >
-          <ShoppingCart size={16} className="mr-1" />
-          <span>CART</span>
-          {cart && cart.totalQuantity > 0 && <span className="ml-1">({cart.totalQuantity})</span>}
-        </button>
       </div>
     </div>
   );
@@ -778,9 +798,9 @@ function TopBar({
 export const Storefront: React.FC<StorefrontProps> = ({
   shopifyProducts,
   cart,
+  audioEnabled,
+  onToggleAudio,
 }) => {
-  // Audio starts as OFF - user must manually click to play (no autoplay)
-  const [audioEnabled, setAudioEnabled] = useState(false);
   const [selected, setSelected] = useState<SelectedProduct | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -790,11 +810,6 @@ export const Storefront: React.FC<StorefrontProps> = ({
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Simple toggle audio function - no persistence, always requires manual click
-  const toggleAudio = useCallback(() => {
-    setAudioEnabled((prev) => !prev);
   }, []);
   const introProgress = useRef(0);
   const sceneRef = useRef<THREE.Group | null>(null);
@@ -810,9 +825,28 @@ export const Storefront: React.FC<StorefrontProps> = ({
   );
 
   const productRefsMap = useRef<Map<string, { selectProduct: () => void }>>(new Map());
+  const productMeshesMap = useRef<Map<string, THREE.Object3D>>(new Map());
+  const pendingTapRef = useRef<{ x: number; y: number } | null>(null);
+  const tapStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
   const registerProductRef = useCallback((productId: string, selectFn: () => void) => {
     productRefsMap.current.set(productId, { selectProduct: selectFn });
+  }, []);
+
+  const registerProductMesh = useCallback((productId: string, mesh: THREE.Object3D | null) => {
+    if (mesh) {
+      productMeshesMap.current.set(productId, mesh);
+    } else {
+      productMeshesMap.current.delete(productId);
+    }
+  }, []);
+
+  // Handle tap detection from outside the canvas - triggers product selection via raycasting
+  const handleProductTap = useCallback((productId: string) => {
+    const productRef = productRefsMap.current.get(productId);
+    if (productRef) {
+      productRef.selectProduct();
+    }
   }, []);
 
   // Safety check - ensure we have valid product data
@@ -936,27 +970,61 @@ export const Storefront: React.FC<StorefrontProps> = ({
     touchEndRef.current = null;
   };
 
+  // Tap detection handlers for the overlay - distinguishes taps from scrolls
+  const handleOverlayTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    tapStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+  };
+
+  const handleOverlayTouchEnd = (e: React.TouchEvent) => {
+    if (!tapStartRef.current) return;
+
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - tapStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - tapStartRef.current.y);
+    const deltaTime = Date.now() - tapStartRef.current.time;
+
+    // It's a tap if: minimal movement (<15px), quick duration (<300ms)
+    const isTap = deltaX < 15 && deltaY < 15 && deltaTime < 300;
+
+    if (isTap) {
+      // Get tap position relative to viewport
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+
+      // Queue the tap for the raycaster to process on next frame
+      pendingTapRef.current = { x, y };
+    }
+
+    tapStartRef.current = null;
+  };
+
   return (
     <div
       className="App w-full h-full relative overflow-hidden"
-      style={{ touchAction: selected ? 'none' : 'auto' }}
+      style={{
+        touchAction: selected ? 'none' : 'auto',
+      }}
       onTouchStart={selected ? handleTouchStart : undefined}
       onTouchMove={selected ? handleTouchMove : undefined}
       onTouchEnd={selected ? handleTouchEnd : undefined}
     >
-      <Suspense>
-        <Await resolve={cart}>
-          <TopBar
-            selected={selected}
-            onBack={() => setSelected(null)}
-            onExportScene={exportScene}
-            isExporting={isExporting}
-            audioEnabled={audioEnabled}
-            onToggleAudio={toggleAudio}
-            introProgress={introProgress}
-          />
-        </Await>
-      </Suspense>
+      {/* Tap detection overlay - allows scroll but captures taps for 3D interaction */}
+      {!selected && isMobile && (
+        <div
+          className="absolute inset-0 z-10"
+          style={{ touchAction: 'pan-y' }}
+          onTouchStart={handleOverlayTouchStart}
+          onTouchEnd={handleOverlayTouchEnd}
+        />
+      )}
+
+      <TopBar
+        selected={selected}
+        onBack={() => setSelected(null)}
+        introProgress={introProgress}
+      />
 
       {/* Scroll Down Indicator - only show when no product is selected */}
       {!selected && (
@@ -1013,11 +1081,22 @@ export const Storefront: React.FC<StorefrontProps> = ({
         camera={{ position: [0.0, 0.0, 0.0], fov: isMobile ? 84 : 60 }}
         gl={{ preserveDrawingBuffer: true }}
         className="w-full h-full absolute"
-        style={{ touchAction: selected ? 'none' : 'pan-y' }}
+        style={{
+          touchAction: isMobile ? 'pan-y' : 'auto',
+          // On mobile: disable pointer events when not selected (use tap overlay instead)
+          // On desktop: always enable pointer events for normal interaction
+          pointerEvents: isMobile ? (selected ? 'auto' : 'none') : 'auto'
+        }}
         legacy={false}
       >
         {/* REFACTOR: Pass the worldOffset to the CameraController */}
         <CameraController selected={selected} introProgress={introProgress} worldOffset={worldOffset} />
+        {/* Raycaster for handling taps from the overlay */}
+        <TapRaycaster
+          pendingTap={pendingTapRef}
+          onProductTap={handleProductTap}
+          productMeshes={productMeshesMap}
+        />
         <Scene
           onSelect={setSelected}
           introProgress={introProgress}
@@ -1026,6 +1105,7 @@ export const Storefront: React.FC<StorefrontProps> = ({
           productDataList={productDataList}
           sceneRef={sceneRef}
           onRegisterProductRef={registerProductRef}
+          onRegisterProductMesh={registerProductMesh}
           // REFACTOR: Pass the worldOffset to the Scene
           worldOffset={worldOffset.toArray() as [number, number, number]}
         />

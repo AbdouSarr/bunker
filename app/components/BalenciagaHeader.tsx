@@ -1,7 +1,7 @@
 import {NavLink, Await} from '@remix-run/react';
 import {Suspense, useState, useEffect} from 'react';
 import {useAside} from '~/components/Aside';
-import {Bookmark, ShoppingCart, ChevronDown} from '~/components/icons';
+import {Bookmark, ShoppingCart, ChevronDown, Volume2, VolumeX, Menu} from '~/components/icons';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {getSavedItems} from '~/lib/savedItems';
 
@@ -10,6 +10,10 @@ interface BalenciagaHeaderProps {
   cart: Promise<CartApiQueryFragment | null>;
   isLoggedIn: Promise<boolean>;
   publicStoreDomain: string;
+  audioEnabled?: boolean;
+  onToggleAudio?: () => void;
+  showAudioControl?: boolean;
+  isVisible?: boolean;
 }
 
 export function BalenciagaHeader({
@@ -17,6 +21,10 @@ export function BalenciagaHeader({
   cart,
   isLoggedIn,
   publicStoreDomain,
+  audioEnabled = false,
+  onToggleAudio,
+  showAudioControl = false,
+  isVisible = true,
 }: BalenciagaHeaderProps) {
   const {open} = useAside();
   const [logoFailed, setLogoFailed] = useState(false);
@@ -79,11 +87,28 @@ export function BalenciagaHeader({
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[9999] bg-white border-t border-b border-black">
-      {/* Single Row Navigation Bar */}
-      <div className="flex items-center justify-between px-2 md:px-6 py-2 md:py-4 relative">
-        {/* Left Navigation Menu - Balenciaga Style with Text Dropdown - Compact on mobile */}
-        <nav className="flex items-center gap-1.5 md:gap-6 flex-shrink-0 relative z-50">
+    <header
+      className="fixed top-0 left-0 right-0 z-[9999] bg-white border-t border-b border-black transition-all duration-500 ease-out"
+      style={{
+        transform: isVisible ? 'translateY(0)' : 'translateY(-100%)',
+        opacity: isVisible ? 1 : 0,
+      }}
+    >
+      {/* Three Column Flexbox Layout */}
+      <div className="flex items-center max-h-[40px] px-2 md:px-6 py-2 md:py-4">
+        {/* Left Section: Menu button (mobile) or Navigation (desktop) */}
+        <div className="flex-1 flex items-center min-w-0">
+          {/* Mobile Menu Button - Only visible on mobile */}
+          <button
+            onClick={() => open('mobile')}
+            className="md:hidden p-1 hover:opacity-70 transition-opacity text-black"
+            aria-label="Open menu"
+          >
+            <Menu size={20} strokeWidth={1.5} />
+          </button>
+
+          {/* Left Navigation Menu - Hidden on mobile, visible on desktop */}
+          <nav className="hidden md:flex items-center gap-1.5 md:gap-6 flex-shrink-0">
           {navigationMenu.map((item) => (
             <div
               key={item.title}
@@ -162,47 +187,50 @@ export function BalenciagaHeader({
               )}
             </div>
           ))}
-        </nav>
+          </nav>
+        </div>
 
-        {/* Center Logo - Original size maintained - Clickable to home */}
-        <NavLink
-          to="/"
-          prefetch="intent"
-          className="absolute left-1/2 -translate-x-1/2 flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
-        >
-          {!logoFailed ? (
-            <img
-              src="/bunker-logo.png"
-              alt="BUNKER"
-              style={{
-                height: '12rem',
-                width: 'auto',
-                objectFit: 'contain',
-              }}
-              className="md:h-[416px] lg:h-[480px] xl:h-[576px]"
-              onError={() => setLogoFailed(true)}
-            />
-          ) : (
-            <span className="text-8xl md:text-[14rem] lg:text-[16rem] xl:text-[18rem] font-bold uppercase tracking-wider text-black leading-none">
-              BUNKER
-            </span>
-          )}
-        </NavLink>
-
-        {/* Right Utility Links & Icons - Very compact on mobile */}
-        <nav className="flex items-center gap-1 md:gap-6 flex-shrink-0 relative z-50">
-          {/* Sign Up Link - Visible on all devices, smaller on mobile */}
+        {/* Center Section: Logo */}
+        <div className="flex-shrink-0 flex items-center justify-center">
           <NavLink
-            to="/signup"
+            to="/"
             prefetch="intent"
-            className="text-[8px] md:text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity whitespace-nowrap"
-            style={{pointerEvents: 'auto'}}
+            className="hover:opacity-80 transition-opacity cursor-pointer"
           >
-            SIGN UP
+            {!logoFailed ? (
+              <img
+                src="/bunker-logo.png"
+                alt="BUNKER"
+                className="h-32 md:h-48 lg:h-56 xl:h-64 w-auto object-contain"
+                onError={() => setLogoFailed(true)}
+              />
+            ) : (
+              <span className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold uppercase tracking-wider text-black leading-none">
+                BUNKER
+              </span>
+            )}
           </NavLink>
-          <NavLink
-            to="/saved"
-            prefetch="intent"
+        </div>
+
+        {/* Right Section: Utility Links & Icons */}
+        <div className="flex-1 flex items-center justify-end min-w-0">
+          <nav className="flex items-center gap-1 md:gap-6 flex-shrink-0">
+          {/* Audio Control - Only shown on homepage */}
+          {showAudioControl && onToggleAudio && (
+            <button
+              onClick={onToggleAudio}
+              className="p-0.5 md:p-1 hover:opacity-70 transition-opacity text-black"
+              aria-label={audioEnabled ? 'Mute audio' : 'Unmute audio'}
+            >
+              {audioEnabled ? (
+                <Volume2 size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
+              ) : (
+                <VolumeX size={14} strokeWidth={1.5} className="md:w-4 md:h-4" />
+              )}
+            </button>
+          )}
+          <button
+            onClick={() => open('saved')}
             className="p-0.5 md:p-1 hover:opacity-70 transition-opacity text-black relative"
             aria-label="Saved items"
           >
@@ -212,7 +240,7 @@ export function BalenciagaHeader({
                 {savedCount}
               </span>
             )}
-          </NavLink>
+          </button>
           <button
             onClick={() => open('cart')}
             className="p-0.5 md:p-1 hover:opacity-70 transition-opacity relative text-black"
@@ -234,7 +262,8 @@ export function BalenciagaHeader({
               </Await>
             </Suspense>
           </button>
-        </nav>
+          </nav>
+        </div>
       </div>
     </header>
   );
