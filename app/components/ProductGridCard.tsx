@@ -1,14 +1,14 @@
 import React, {useState, useEffect} from 'react';
+import {Link} from '@remix-run/react';
 import {Bookmark, ChevronLeft, ChevronRight} from '~/components/icons';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import {useSavedItems} from '~/hooks/useSavedItems';
 
 interface ProductGridCardProps {
   product: Product3DDataFragment;
-  onProductClick: (product: Product3DDataFragment) => void;
 }
 
-export default function ProductGridCard({product, onProductClick}: ProductGridCardProps) {
+export default function ProductGridCard({product}: ProductGridCardProps) {
   const {title, handle, images, variants, options} = product;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -77,11 +77,12 @@ export default function ProductGridCard({product, onProductClick}: ProductGridCa
   };
 
   return (
-    <div className="group relative bg-white border-r border-b border-black w-full h-full box-border" style={{borderWidth: '1px'}}>
+    <div className="group relative bg-white border-r border-b border-black w-full h-full box-border" style={{borderWidth: '0.5px'}}>
       {/* Product Image Gallery - Shows all images */}
-      <div
-        className="relative aspect-square bg-white overflow-hidden cursor-pointer"
-        onClick={() => onProductClick(product)}
+      <Link
+        to={`/products/${handle}`}
+        prefetch="intent"
+        className="relative aspect-square bg-white overflow-hidden cursor-pointer block"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
           setIsHovered(false);
@@ -108,14 +109,22 @@ export default function ProductGridCard({product, onProductClick}: ProductGridCa
               {hasMultipleImages && (
                 <>
                   <button
-                    onClick={prevImage}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      prevImage(e);
+                    }}
                     className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-transparent hover:bg-white/20 border border-transparent hover:border-white/30 opacity-0 group-hover:opacity-100 transition-all z-20"
                     aria-label="Previous image"
                   >
                     <ChevronLeft size={16} className="text-white drop-shadow-lg" />
                   </button>
                   <button
-                    onClick={nextImage}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      nextImage(e);
+                    }}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-transparent hover:bg-white/20 border border-transparent hover:border-white/30 opacity-0 group-hover:opacity-100 transition-all z-20"
                     aria-label="Next image"
                   >
@@ -151,7 +160,7 @@ export default function ProductGridCard({product, onProductClick}: ProductGridCa
               </span>
             </div>
           )}
-        </div>
+      </Link>
 
       {/* Product Info - Exact Balenciaga layout - Compact */}
       <div className="p-4 space-y-1">
@@ -164,14 +173,15 @@ export default function ProductGridCard({product, onProductClick}: ProductGridCa
         )}
 
         {/* Title */}
-        <button
-          onClick={() => onProductClick(product)}
-          className="text-left w-full"
+        <Link
+          to={`/products/${handle}`}
+          prefetch="intent"
+          className="text-left w-full block"
         >
           <h3 className="text-[10px] uppercase tracking-wider text-black hover:opacity-70 transition-opacity line-clamp-2 leading-tight mb-0.5">
             {title}
           </h3>
-        </button>
+        </Link>
 
         {/* Color count - if multiple colors */}
         {colorCount > 1 && (

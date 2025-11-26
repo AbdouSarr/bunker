@@ -107,9 +107,14 @@ export default function Homepage() {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const [isClient, setIsClient] = useState(false);
   const [showStorefront, setShowStorefront] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  const toggleAudio = useCallback(() => {
+    setAudioEnabled((prev) => !prev);
   }, []);
 
   useEffect(() => {
@@ -149,6 +154,8 @@ export default function Homepage() {
               <Storefront
                 shopifyProducts={products3D}
                 cart={rootData.cart}
+                audioEnabled={audioEnabled}
+                onToggleAudio={toggleAudio}
               />
             </Suspense>
           </ThreeDErrorBoundary>

@@ -749,10 +749,14 @@ function TopBar({
   selected,
   onBack,
   introProgress,
+  audioEnabled,
+  onToggleAudio,
 }: {
   selected: SelectedProduct | null;
   onBack: () => void;
   introProgress: MutableRefObject<number>;
+  audioEnabled: boolean;
+  onToggleAudio: () => void;
 }) {
   const [buttonsVisible, setButtonsVisible] = useState(false);
 
@@ -788,8 +792,19 @@ function TopBar({
         )}
       </div>
 
-      {/* Right side - empty now, buttons moved to header */}
+      {/* Right side - Audio toggle button */}
       <div className="flex gap-2 pointer-events-auto">
+        <button
+          onClick={onToggleAudio}
+          className={`${buttonBaseClasses} w-10 bg-black/50 text-white hover:bg-black/70`}
+          style={{
+            opacity: buttonsVisible ? 1 : 0,
+            transform: `translateY(${buttonsVisible ? 0 : -10}px)`,
+            transitionDelay: '100ms'
+          }}
+        >
+          {audioEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+        </button>
       </div>
     </div>
   );
@@ -1024,6 +1039,8 @@ export const Storefront: React.FC<StorefrontProps> = ({
         selected={selected}
         onBack={() => setSelected(null)}
         introProgress={introProgress}
+        audioEnabled={audioEnabled}
+        onToggleAudio={onToggleAudio}
       />
 
       {/* Scroll Down Indicator - only show when no product is selected */}

@@ -1,6 +1,4 @@
-import {useState} from 'react';
 import ProductGridCard from '~/components/ProductGridCard';
-import {ProductModal} from '~/components/ProductModal';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 
@@ -10,18 +8,6 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({products}: ProductGridProps) {
-  const [selectedProduct, setSelectedProduct] = useState<Product3DDataFragment | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleProductClick = (product: Product3DDataFragment) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedProduct(null);
-  };
 
   return (
     <section id="products" className="w-full bg-white overflow-x-hidden">
@@ -37,12 +23,11 @@ export default function ProductGrid({products}: ProductGridProps) {
         </div>
 
         {/* Product Grid - Exact Balenciaga layout with borders - 4 columns on desktop */}
-        <div className="product-grid-custom border-l border-t border-black w-full max-w-full" style={{borderWidth: '1px'}}>
+        <div className="product-grid-custom border-l border-t border-black w-full max-w-full" style={{borderWidth: '0.5px'}}>
           {products.map((product) => (
             <ProductGridCard
               key={product.id}
               product={product}
-              onProductClick={handleProductClick}
             />
           ))}
         </div>
@@ -56,13 +41,6 @@ export default function ProductGrid({products}: ProductGridProps) {
           </div>
         )}
       </div>
-
-      {/* Product Modal */}
-      <ProductModal
-        product={selectedProduct}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
     </section>
   );
 }

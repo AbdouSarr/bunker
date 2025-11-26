@@ -289,14 +289,22 @@ export default function Product() {
                   {imageNodes.length > 1 && (
                     <>
                       <button
-                        onClick={prevImage}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          prevImage();
+                        }}
                         className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-transparent hover:bg-white/20 border border-transparent hover:border-white/30 z-20 transition-all"
                         aria-label="Previous image"
                       >
                         <ChevronLeft size={18} className="text-white drop-shadow-lg" />
                       </button>
                       <button
-                        onClick={nextImage}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          nextImage();
+                        }}
                         className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-transparent hover:bg-white/20 border border-transparent hover:border-white/30 z-20 transition-all"
                         aria-label="Next image"
                       >
