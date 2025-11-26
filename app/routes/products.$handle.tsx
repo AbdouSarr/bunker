@@ -285,22 +285,22 @@ export default function Product() {
                     />
                   </div>
                   
-                  {/* Navigation Arrows - Show for all images */}
+                  {/* Navigation Arrows - Show for all images - Transparent */}
                   {imageNodes.length > 1 && (
                     <>
                       <button
                         onClick={prevImage}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white hover:bg-gray-50 border border-black z-20"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-transparent hover:bg-white/20 border border-transparent hover:border-white/30 z-20 transition-all"
                         aria-label="Previous image"
                       >
-                        <ChevronLeft size={18} />
+                        <ChevronLeft size={18} className="text-white drop-shadow-lg" />
                       </button>
                       <button
                         onClick={nextImage}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white hover:bg-gray-50 border border-black z-20"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-transparent hover:bg-white/20 border border-transparent hover:border-white/30 z-20 transition-all"
                         aria-label="Next image"
                       >
-                        <ChevronRight size={18} />
+                        <ChevronRight size={18} className="text-white drop-shadow-lg" />
                       </button>
                     </>
                   )}
