@@ -1,7 +1,9 @@
 import {json, type LoaderFunctionArgs} from '@netlify/remix-runtime';
-import {Link} from '@remix-run/react';
+import {Link, useRouteLoaderData} from '@remix-run/react';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import {useAside} from '~/components/Aside';
+import {BalenciagaHeader} from '~/components/BalenciagaHeader';
+import type {RootLoader} from '~/root';
 import {getSavedItems, removeItem, type SavedProduct} from '~/lib/savedItems';
 import {useState, useEffect} from 'react';
 import {Bookmark} from '~/components/icons';
@@ -30,8 +32,20 @@ export default function SavedItems() {
     setSavedItems(getSavedItems());
   };
 
+  const rootData = useRouteLoaderData<RootLoader>('root');
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
+      {rootData?.header && (
+        <BalenciagaHeader
+          header={rootData.header}
+          cart={rootData.cart}
+          isLoggedIn={rootData.isLoggedIn}
+          publicStoreDomain={rootData.publicStoreDomain}
+        />
+      )}
+
       {/* Saved Items Content */}
       <div className="pt-20">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-12">

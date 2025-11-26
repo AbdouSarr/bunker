@@ -1,6 +1,8 @@
 import {json, type LoaderFunctionArgs} from '@netlify/remix-runtime';
-import {type MetaFunction} from '@remix-run/react';
+import {type MetaFunction, useRouteLoaderData} from '@remix-run/react';
+import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import AudioPlayer from '~/components/AudioPlayer';
+import type {RootLoader} from '~/root';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Bunker Studio | About'}];
@@ -11,8 +13,20 @@ export async function loader({}: LoaderFunctionArgs) {
 }
 
 export default function About() {
+  const rootData = useRouteLoaderData<RootLoader>('root');
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
+      {rootData?.header && (
+        <BalenciagaHeader
+          header={rootData.header}
+          cart={rootData.cart}
+          isLoggedIn={rootData.isLoggedIn}
+          publicStoreDomain={rootData.publicStoreDomain}
+        />
+      )}
+
       {/* About Page Content */}
       <div className="pt-20">
         <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-12 md:py-16">

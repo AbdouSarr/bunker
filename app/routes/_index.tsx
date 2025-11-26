@@ -4,6 +4,7 @@ import {useState, useEffect, lazy, Suspense, useCallback} from 'react';
 import LoadingScreen from '~/components/3D/LoadingScreen';
 import {ThreeDErrorBoundary} from '~/components/ErrorBoundary';
 import ProductGrid from '~/components/ProductGrid';
+import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import type {RootLoader} from '~/root';
 import {useAudio} from '~/contexts/AudioContext';
@@ -127,6 +128,16 @@ export default function Homepage() {
 
   return (
     <div className="homepage-container w-screen bg-white relative">
+      {/* Header */}
+      {rootData?.header && (
+        <BalenciagaHeader
+          header={rootData.header}
+          cart={rootData.cart}
+          isLoggedIn={rootData.isLoggedIn}
+          publicStoreDomain={rootData.publicStoreDomain}
+        />
+      )}
+
       {/* 3D Experience Section - Full viewport height accounting for Safari UI */}
       <div className="relative w-full h-[100dvh]">
         {isClient && !showStorefront && (

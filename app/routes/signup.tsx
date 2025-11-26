@@ -1,6 +1,8 @@
 import {json, type ActionFunctionArgs, type LoaderFunctionArgs, redirect} from '@netlify/remix-runtime';
-import {Form, useActionData, useNavigation} from '@remix-run/react';
+import {Form, useActionData, useNavigation, useRouteLoaderData} from '@remix-run/react';
 import {useState} from 'react';
+import {BalenciagaHeader} from '~/components/BalenciagaHeader';
+import type {RootLoader} from '~/root';
 import {ADMIN_EMAIL} from '~/lib/email';
 
 export async function loader({context}: LoaderFunctionArgs) {
@@ -123,6 +125,7 @@ export async function action({request, context}: ActionFunctionArgs) {
 }
 
 export default function Signup() {
+  const rootData = useRouteLoaderData<RootLoader>('root');
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const [showSuccess, setShowSuccess] = useState(false);
@@ -144,6 +147,16 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
+      {rootData?.header && (
+        <BalenciagaHeader
+          header={rootData.header}
+          cart={rootData.cart}
+          isLoggedIn={rootData.isLoggedIn}
+          publicStoreDomain={rootData.publicStoreDomain}
+        />
+      )}
+
       {/* Signup Form - Centered to align with BUNKER logo */}
       <div className="flex items-center justify-center min-h-screen pt-20 px-4">
         <div className="w-full max-w-md mx-auto">

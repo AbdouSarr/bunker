@@ -77,7 +77,7 @@ export default function ProductGridCard({product, onProductClick}: ProductGridCa
   };
 
   return (
-    <div className="group relative bg-white border-r border-b border-black">
+    <div className="group relative bg-white border-r border-b border-black" style={{borderWidth: '1px'}}>
       {/* Product Image Gallery - Shows all images */}
       <div
         className="relative aspect-square bg-white overflow-hidden cursor-pointer"
