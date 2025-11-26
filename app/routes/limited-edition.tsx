@@ -1,7 +1,5 @@
 import {json, type ActionFunctionArgs, type LoaderFunctionArgs} from '@netlify/remix-runtime';
-import {type MetaFunction, useRouteLoaderData, Form, useActionData} from '@remix-run/react';
-import {BalenciagaHeader} from '~/components/BalenciagaHeader';
-import type {RootLoader} from '~/root';
+import {type MetaFunction, Form, useActionData} from '@remix-run/react';
 import {useState} from 'react';
 import {ADMIN_EMAIL} from '~/lib/email';
 
@@ -31,22 +29,11 @@ export async function action({request}: ActionFunctionArgs) {
 }
 
 export default function LimitedEdition() {
-  const rootData = useRouteLoaderData<RootLoader>('root');
   const actionData = useActionData<typeof action>();
   const [email, setEmail] = useState('');
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      {rootData?.header && (
-        <BalenciagaHeader
-          header={rootData.header}
-          cart={rootData.cart}
-          isLoggedIn={rootData.isLoggedIn}
-          publicStoreDomain={rootData.publicStoreDomain}
-        />
-      )}
-
       {/* Limited Edition Page Content */}
       <div className="pt-20">
         <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center px-4 md:px-8 py-12">

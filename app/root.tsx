@@ -18,7 +18,6 @@ import appStyles from '~/styles/app.css?url';
 import tailwindStyles from '~/styles/tailwind.css?url';
 import {PageLayout} from '~/components/PageLayout';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
-import {checkPasswordProtection} from '~/lib/auth';
 import {initWebVitals} from '~/lib/webVitals';
 
 export type RootLoader = typeof loader;
@@ -59,10 +58,7 @@ export function links() {
 }
 
 export async function loader(args: LoaderFunctionArgs) {
-  const {request, context} = args;
-  
-  // Check password protection first
-  checkPasswordProtection(request, context.session);
+  const {context} = args;
 
   // Start fetching non-critical data without blocking time to first byte
   const deferredData = loadDeferredData(args);

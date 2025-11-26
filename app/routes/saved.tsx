@@ -1,11 +1,8 @@
 import {json, type LoaderFunctionArgs} from '@netlify/remix-runtime';
-import {useLoaderData, Link} from '@remix-run/react';
-import {BalenciagaHeader} from '~/components/BalenciagaHeader';
+import {Link} from '@remix-run/react';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import {useAside} from '~/components/Aside';
 import {getSavedItems, removeItem, type SavedProduct} from '~/lib/savedItems';
-import type {RootLoader} from '~/root';
-import {useRouteLoaderData} from '@remix-run/react';
 import {useState, useEffect} from 'react';
 import {Bookmark} from '~/components/icons';
 
@@ -19,7 +16,6 @@ export async function loader({request}: LoaderFunctionArgs) {
 }
 
 export default function SavedItems() {
-  const rootData = useRouteLoaderData<RootLoader>('root');
   const {open} = useAside();
   const [savedItems, setSavedItems] = useState<SavedProduct[]>([]);
   const [isClient, setIsClient] = useState(false);
@@ -36,16 +32,6 @@ export default function SavedItems() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      {rootData?.header && (
-        <BalenciagaHeader
-          header={rootData.header}
-          cart={rootData.cart}
-          isLoggedIn={rootData.isLoggedIn}
-          publicStoreDomain={rootData.publicStoreDomain}
-        />
-      )}
-
       {/* Saved Items Content */}
       <div className="pt-20">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-12">

@@ -1,8 +1,5 @@
 import {json, type LoaderFunctionArgs} from '@netlify/remix-runtime';
-import {type MetaFunction, useRouteLoaderData} from '@remix-run/react';
-import {BalenciagaHeader} from '~/components/BalenciagaHeader';
-import type {RootLoader} from '~/root';
-import {useState} from 'react';
+import {type MetaFunction} from '@remix-run/react';
 import {Form, useActionData, useNavigation} from '@remix-run/react';
 import type {ActionFunctionArgs} from '@netlify/remix-runtime';
 import {ADMIN_EMAIL} from '~/lib/email';
@@ -52,23 +49,12 @@ export async function action({request}: ActionFunctionArgs) {
 }
 
 export default function Contact() {
-  const rootData = useRouteLoaderData<RootLoader>('root');
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      {rootData?.header && (
-        <BalenciagaHeader
-          header={rootData.header}
-          cart={rootData.cart}
-          isLoggedIn={rootData.isLoggedIn}
-          publicStoreDomain={rootData.publicStoreDomain}
-        />
-      )}
-
       {/* Contact Page Content */}
       <div className="pt-20">
         <div className="max-w-[800px] mx-auto px-4 md:px-8 py-12 md:py-16">
