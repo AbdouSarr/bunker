@@ -77,7 +77,7 @@ export default function ProductGridCard({product, onProductClick}: ProductGridCa
   };
 
   return (
-    <div className="group relative bg-white border-r border-b border-black" style={{borderWidth: '1px'}}>
+    <div className="group relative bg-white border-r border-b border-black w-full h-full box-border" style={{borderWidth: '1px'}}>
       {/* Product Image Gallery - Shows all images */}
       <div
         className="relative aspect-square bg-white overflow-hidden cursor-pointer"
@@ -104,22 +104,22 @@ export default function ProductGridCard({product, onProductClick}: ProductGridCa
                 }}
               />
 
-              {/* Image Navigation Arrows - Show when multiple images */}
+              {/* Image Navigation Arrows - Show when multiple images - White/Transparent */}
               {hasMultipleImages && (
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/90 hover:bg-white border border-black opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-transparent hover:bg-white/20 border border-transparent hover:border-white/30 opacity-0 group-hover:opacity-100 transition-all z-20"
                     aria-label="Previous image"
                   >
-                    <ChevronLeft size={16} />
+                    <ChevronLeft size={16} className="text-white drop-shadow-lg" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/90 hover:bg-white border border-black opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-transparent hover:bg-white/20 border border-transparent hover:border-white/30 opacity-0 group-hover:opacity-100 transition-all z-20"
                     aria-label="Next image"
                   >
-                    <ChevronRight size={16} />
+                    <ChevronRight size={16} className="text-white drop-shadow-lg" />
                   </button>
 
                   {/* Image Indicator Dots - Show all images */}

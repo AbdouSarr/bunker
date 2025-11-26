@@ -7,7 +7,6 @@ import ProductGrid from '~/components/ProductGrid';
 import {BalenciagaHeader} from '~/components/BalenciagaHeader';
 import type {Product3DDataFragment} from '~/lib/fragments';
 import type {RootLoader} from '~/root';
-import {useAudio} from '~/contexts/AudioContext';
 
 // Use React.lazy for dynamic import
 const Storefront = lazy(() =>
@@ -106,7 +105,6 @@ export async function loader({context}: LoaderFunctionArgs) {
 export default function Homepage() {
   const {products3D, allProducts} = useLoaderData<typeof loader>();
   const rootData = useRouteLoaderData<RootLoader>('root');
-  const {audioEnabled, toggleAudio} = useAudio();
   const [isClient, setIsClient] = useState(false);
   const [showStorefront, setShowStorefront] = useState(false);
 
@@ -151,8 +149,6 @@ export default function Homepage() {
               <Storefront
                 shopifyProducts={products3D}
                 cart={rootData.cart}
-                audioEnabled={audioEnabled}
-                onToggleAudio={toggleAudio}
               />
             </Suspense>
           </ThreeDErrorBoundary>

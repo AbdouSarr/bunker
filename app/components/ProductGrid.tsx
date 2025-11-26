@@ -24,8 +24,8 @@ export default function ProductGrid({products}: ProductGridProps) {
   };
 
   return (
-    <section id="products" className="w-full bg-white">
-      <div className="w-full px-0">
+    <section id="products" className="w-full bg-white overflow-x-hidden">
+      <div className="w-full px-0 max-w-full overflow-x-hidden">
         {/* Product Count */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2 md:px-6">
           <p className="text-xs uppercase tracking-wider text-black" style={{fontWeight: 'normal'}}>
@@ -37,7 +37,7 @@ export default function ProductGrid({products}: ProductGridProps) {
         </div>
 
         {/* Product Grid - Exact Balenciaga layout with borders - 4 columns on desktop */}
-        <div className="product-grid-custom border-l border-t border-black" style={{borderWidth: '1px'}}>
+        <div className="product-grid-custom border-l border-t border-black w-full max-w-full" style={{borderWidth: '1px'}}>
           {products.map((product) => (
             <ProductGridCard
               key={product.id}
