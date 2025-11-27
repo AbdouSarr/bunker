@@ -423,27 +423,25 @@ button.reset:hover:not(:has(> *)) {
   }
 }
 
-/* Product Grid - 4 columns on desktop */
+/* Product Grid - Flexible layout without grid */
 .product-grid-custom {
-  display: grid;
-  gap: 0;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  border-width: 0.5px !important;
 }
 
 .product-grid-custom > * {
   box-sizing: border-box;
   min-width: 0;
   max-width: 100%;
-  border-width: 0.5px !important;
+  flex: 1 1 calc(50% - 0px);
 }
 
 @media (min-width: 1024px) {
-  .product-grid-custom {
-    grid-template-columns: repeat(4, 1fr);
+  .product-grid-custom > * {
+    flex: 1 1 calc(25% - 0px);
   }
 }
 
