@@ -77,7 +77,7 @@ export default function ProductGridCard({product}: ProductGridCardProps) {
   };
 
   return (
-    <div className="group relative bg-white border-r border-b border-black w-full h-full box-border" style={{borderWidth: '0.5px'}}>
+    <div className="group relative bg-white w-full h-full box-border">
       {/* Product Image Gallery - Shows all images */}
       <Link
         to={`/products/${handle}`}

@@ -22,8 +22,8 @@ export default function ProductGrid({products}: ProductGridProps) {
           </p>
         </div>
 
-        {/* Product Grid - Exact Balenciaga layout with borders - 4 columns on desktop */}
-        <div className="product-grid-custom border-l border-t border-black w-full max-w-full" style={{borderWidth: '0.5px'}}>
+        {/* Product Grid - Exact Balenciaga layout - 4 columns on desktop */}
+        <div className="product-grid-custom w-full max-w-full">
           {products.map((product) => (
             <ProductGridCard
               key={product.id}

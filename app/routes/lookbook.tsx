@@ -58,12 +58,6 @@ const LOOKBOOK_IMAGES = [
     layout: 'full',
   },
   {
-    id: '8',
-    url: '/lookbook/8.jpg',
-    altText: 'Bunker Lookbook - Black jacket and navy pants on red background',
-    layout: 'full',
-  },
-  {
     id: '9',
     url: '/lookbook/9.jpg',
     altText: 'Bunker Lookbook - Purple hair with dark puffer jacket on red background',
