@@ -93,6 +93,12 @@ const LOOKBOOK_IMAGES = [
     altText: 'Bunker Lookbook - Black hoodie and baggy jeans on red background',
     layout: 'full',
   },
+  {
+    id: '14',
+    url: '/lookbook/14.jpg',
+    altText: 'Bunker Lookbook - Additional lookbook image',
+    layout: 'full',
+  },
 ];
 
 export default function Lookbook() {
