@@ -65,6 +65,7 @@ export function BalenciagaHeader({
         { title: 'Spring 26', url: '/#products' },
         { title: 'Winter 25', url: '/#products' },
         { title: 'Limited Edition', url: '/limited-edition' },
+        { title: 'Lookbook', url: '/lookbook' },
       ],
     },
     {
