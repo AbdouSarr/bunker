@@ -93,12 +93,6 @@ const LOOKBOOK_IMAGES = [
     altText: 'Bunker Lookbook - Black hoodie and baggy jeans on red background',
     layout: 'full',
   },
-  {
-    id: '14',
-    url: '/lookbook/14.jpg',
-    altText: 'Bunker Lookbook - Additional lookbook image',
-    layout: 'full',
-  },
 ];
 
 export default function Lookbook() {
@@ -170,7 +164,7 @@ export default function Lookbook() {
             className="w-full cursor-pointer group relative overflow-hidden"
             onClick={() => openImageModal(currentImage, i)}
           >
-            <div className="relative w-full" style={{aspectRatio: '4/5'}}>
+            <div className="relative w-full bg-white" style={{aspectRatio: '4/5'}}>
               {failedImages.has(currentImage.id) ? (
                 <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                   <p className="text-xs uppercase tracking-wider text-gray-400 text-center px-4">
@@ -183,7 +177,12 @@ export default function Lookbook() {
                 <img
                   src={currentImage.url}
                   alt={currentImage.altText}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+                  style={{
+                    padding: '20px',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                  }}
                   loading={i < 3 ? 'eager' : 'lazy'}
                   onError={() => setFailedImages(prev => new Set(prev).add(currentImage.id))}
                 />
@@ -202,7 +201,7 @@ export default function Lookbook() {
               className="cursor-pointer group relative overflow-hidden border-r border-b border-black"
               onClick={() => openImageModal(currentImage, i)}
             >
-              <div className="relative w-full" style={{aspectRatio: '4/5'}}>
+              <div className="relative w-full bg-white" style={{aspectRatio: '4/5'}}>
                 {failedImages.has(currentImage.id) ? (
                   <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                     <p className="text-xs uppercase tracking-wider text-gray-400 text-center px-4">
@@ -215,7 +214,12 @@ export default function Lookbook() {
                   <img
                     src={currentImage.url}
                     alt={currentImage.altText}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+                    style={{
+                      padding: '20px',
+                      objectFit: 'contain',
+                      objectPosition: 'center',
+                    }}
                     loading={i < 3 ? 'eager' : 'lazy'}
                     onError={() => setFailedImages(prev => new Set(prev).add(currentImage.id))}
                   />
@@ -227,7 +231,7 @@ export default function Lookbook() {
               className="cursor-pointer group relative overflow-hidden border-r border-b border-black"
               onClick={() => openImageModal(nextImage, i + 1)}
             >
-              <div className="relative w-full" style={{aspectRatio: '4/5'}}>
+              <div className="relative w-full bg-white" style={{aspectRatio: '4/5'}}>
                 {failedImages.has(nextImage.id) ? (
                   <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                     <p className="text-xs uppercase tracking-wider text-gray-400 text-center px-4">
@@ -240,7 +244,12 @@ export default function Lookbook() {
                   <img
                     src={nextImage.url}
                     alt={nextImage.altText}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+                    style={{
+                      padding: '20px',
+                      objectFit: 'contain',
+                      objectPosition: 'center',
+                    }}
                     loading={i < 3 ? 'eager' : 'lazy'}
                     onError={() => setFailedImages(prev => new Set(prev).add(nextImage.id))}
                   />
@@ -259,7 +268,7 @@ export default function Lookbook() {
             className="w-full cursor-pointer group relative overflow-hidden"
             onClick={() => openImageModal(currentImage, i)}
           >
-            <div className="relative w-full" style={{aspectRatio: '4/5'}}>
+            <div className="relative w-full bg-white" style={{aspectRatio: '4/5'}}>
               {failedImages.has(currentImage.id) ? (
                 <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                   <p className="text-xs uppercase tracking-wider text-gray-400 text-center px-4">
@@ -272,7 +281,12 @@ export default function Lookbook() {
                 <img
                   src={currentImage.url}
                   alt={currentImage.altText}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+                  style={{
+                    padding: '20px',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                  }}
                   loading={i < 3 ? 'eager' : 'lazy'}
                   onError={() => setFailedImages(prev => new Set(prev).add(currentImage.id))}
                 />
