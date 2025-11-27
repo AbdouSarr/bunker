@@ -148,158 +148,44 @@ export default function Lookbook() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, closeImageModal, nextImage, prevImage]);
 
-  // Group images by layout for editorial flow
+  // Grid layout - Show all images side by side in a responsive grid
   const renderEditorialLayout = () => {
-    const items: JSX.Element[] = [];
-    let i = 0;
-
-    while (i < LOOKBOOK_IMAGES.length) {
-      const currentImage = LOOKBOOK_IMAGES[i];
-      
-      if (currentImage.layout === 'full') {
-        // Full-width image
-        items.push(
+    return (
+      <div className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 border-l border-t border-black">
+        {LOOKBOOK_IMAGES.map((image, index) => (
           <div
-            key={currentImage.id}
-            className="w-full cursor-pointer group relative overflow-hidden"
-            onClick={() => openImageModal(currentImage, i)}
+            key={image.id}
+            className="cursor-pointer group relative overflow-hidden border-r border-b border-black bg-white"
+            onClick={() => openImageModal(image, index)}
+            style={{aspectRatio: '3/4'}}
           >
-            <div className="relative w-full bg-white" style={{aspectRatio: '4/5'}}>
-              {failedImages.has(currentImage.id) ? (
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <p className="text-xs uppercase tracking-wider text-gray-400 text-center px-4">
-                    Image not found
-                    <br />
-                    <span className="text-[10px]">{currentImage.url}</span>
-                  </p>
-                </div>
-              ) : (
-                <img
-                  src={currentImage.url}
-                  alt={currentImage.altText}
-                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
-                  style={{
-                    padding: '20px',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                  }}
-                  loading={i < 3 ? 'eager' : 'lazy'}
-                  onError={() => setFailedImages(prev => new Set(prev).add(currentImage.id))}
-                />
-              )}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
-            </div>
-          </div>
-        );
-        i++;
-      } else if (currentImage.layout === 'half' && i + 1 < LOOKBOOK_IMAGES.length) {
-        // Two half-width images side by side
-        const nextImage = LOOKBOOK_IMAGES[i + 1];
-        items.push(
-          <div key={`pair-${i}`} className="w-full grid grid-cols-1 md:grid-cols-2 gap-0 border-l border-t border-black">
-            <div
-              className="cursor-pointer group relative overflow-hidden border-r border-b border-black"
-              onClick={() => openImageModal(currentImage, i)}
-            >
-              <div className="relative w-full bg-white" style={{aspectRatio: '4/5'}}>
-                {failedImages.has(currentImage.id) ? (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <p className="text-xs uppercase tracking-wider text-gray-400 text-center px-4">
-                      Image not found
-                      <br />
-                      <span className="text-[10px]">{currentImage.url}</span>
-                    </p>
-                  </div>
-                ) : (
-                  <img
-                    src={currentImage.url}
-                    alt={currentImage.altText}
-                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
-                    style={{
-                      padding: '20px',
-                      objectFit: 'contain',
-                      objectPosition: 'center',
-                    }}
-                    loading={i < 3 ? 'eager' : 'lazy'}
-                    onError={() => setFailedImages(prev => new Set(prev).add(currentImage.id))}
-                  />
-                )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+            {failedImages.has(image.id) ? (
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <p className="text-xs uppercase tracking-wider text-gray-400 text-center px-4">
+                  Image not found
+                  <br />
+                  <span className="text-[10px]">{image.url}</span>
+                </p>
               </div>
-            </div>
-            <div
-              className="cursor-pointer group relative overflow-hidden border-r border-b border-black"
-              onClick={() => openImageModal(nextImage, i + 1)}
-            >
-              <div className="relative w-full bg-white" style={{aspectRatio: '4/5'}}>
-                {failedImages.has(nextImage.id) ? (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <p className="text-xs uppercase tracking-wider text-gray-400 text-center px-4">
-                      Image not found
-                      <br />
-                      <span className="text-[10px]">{nextImage.url}</span>
-                    </p>
-                  </div>
-                ) : (
-                  <img
-                    src={nextImage.url}
-                    alt={nextImage.altText}
-                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
-                    style={{
-                      padding: '20px',
-                      objectFit: 'contain',
-                      objectPosition: 'center',
-                    }}
-                    loading={i < 3 ? 'eager' : 'lazy'}
-                    onError={() => setFailedImages(prev => new Set(prev).add(nextImage.id))}
-                  />
-                )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
-              </div>
-            </div>
+            ) : (
+              <img
+                src={image.url}
+                alt={image.altText}
+                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+                style={{
+                  padding: '12px',
+                  objectFit: 'contain',
+                  objectPosition: 'center',
+                }}
+                loading={index < 4 ? 'eager' : 'lazy'}
+                onError={() => setFailedImages(prev => new Set(prev).add(image.id))}
+              />
+            )}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
           </div>
-        );
-        i += 2;
-      } else {
-        // Fallback to full-width if odd number
-        items.push(
-          <div
-            key={currentImage.id}
-            className="w-full cursor-pointer group relative overflow-hidden"
-            onClick={() => openImageModal(currentImage, i)}
-          >
-            <div className="relative w-full bg-white" style={{aspectRatio: '4/5'}}>
-              {failedImages.has(currentImage.id) ? (
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <p className="text-xs uppercase tracking-wider text-gray-400 text-center px-4">
-                    Image not found
-                    <br />
-                    <span className="text-[10px]">{currentImage.url}</span>
-                  </p>
-                </div>
-              ) : (
-                <img
-                  src={currentImage.url}
-                  alt={currentImage.altText}
-                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.02]"
-                  style={{
-                    padding: '20px',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                  }}
-                  loading={i < 3 ? 'eager' : 'lazy'}
-                  onError={() => setFailedImages(prev => new Set(prev).add(currentImage.id))}
-                />
-              )}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
-            </div>
-          </div>
-        );
-        i++;
-      }
-    }
-
-    return items;
+        ))}
+      </div>
+    );
   };
 
   return (
