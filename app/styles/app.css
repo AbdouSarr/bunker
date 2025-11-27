@@ -653,3 +653,8 @@ canvas {
     right: max(1rem, env(safe-area-inset-right));
   }
 }
+
+/* Ensure all borders with border-black are 0.5px - consistent page breaks across all pages */
+.border-black {
+  border-width: 0.5px !important;
+}

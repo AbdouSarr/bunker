@@ -72,11 +72,12 @@ export default function SavedItems() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 border-l border-t border-black">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 border-l border-t border-black" style={{borderWidth: '0.5px'}}>
               {savedItems.map((item) => (
                 <div
                   key={item.id}
                   className="group relative bg-white border-r border-b border-black"
+                  style={{borderWidth: '0.5px'}}
                 >
                   {/* Remove Button */}
                   <button
