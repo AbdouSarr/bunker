@@ -1,7 +1,7 @@
 import {NavLink, Await} from '@remix-run/react';
 import {Suspense, useState, useEffect} from 'react';
 import {useAside} from '~/components/Aside';
-import {Bookmark, ShoppingCart, ChevronDown} from '~/components/icons';
+import {Bookmark, ShoppingCart, ChevronDown, Menu, ChevronRight} from '~/components/icons';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {getSavedItems} from '~/lib/savedItems';
 
@@ -23,6 +23,7 @@ export function BalenciagaHeader({
   const [savedCount, setSavedCount] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -89,8 +90,22 @@ export function BalenciagaHeader({
             <div
               key={item.title}
               className="relative"
-              onMouseEnter={() => setHoveredNav(item.title)}
-              onMouseLeave={() => setHoveredNav(null)}
+              onMouseEnter={() => {
+                if (window.innerWidth >= 768) {
+                  setHoveredNav(item.title);
+                }
+              }}
+              onMouseLeave={() => {
+                if (window.innerWidth >= 768) {
+                  setHoveredNav(null);
+                }
+              }}
+              onClick={(e) => {
+                if (window.innerWidth < 768 && item.items && item.items.length > 0) {
+                  e.preventDefault();
+                  setHoveredNav(hoveredNav === item.title ? null : item.title);
+                }
+              }}
             >
               <a
                 href={item.url}
@@ -105,20 +120,33 @@ export function BalenciagaHeader({
                     }
                   }
                 }}
-                className="flex items-center gap-1 text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1 text-xs uppercase tracking-wider font-normal text-black hover:opacity-70 transition-opacity cursor-pointer"
               >
-                {item.title}
+                {/* Mobile: Show only arrow, Desktop: Show text + arrow */}
+                <span className="hidden md:inline whitespace-nowrap">{item.title}</span>
                 {item.items && item.items.length > 0 && (
-                  <ChevronDown size={12} className="opacity-70" />
+                  <ChevronRight size={16} className="md:hidden" />
+                )}
+                {item.items && item.items.length > 0 && (
+                  <ChevronDown size={12} className="hidden md:block opacity-70" />
                 )}
               </a>
               
               {/* Dropdown Menu - Text-based with no gap to prevent disappearing */}
               {item.items && item.items.length > 0 && hoveredNav === item.title && (
                 <div 
-                  className="absolute top-full left-0 pt-0.5 z-[100]"
-                  onMouseEnter={() => setHoveredNav(item.title)}
-                  onMouseLeave={() => setHoveredNav(null)}
+                  className="absolute top-full left-0 pt-0.5 z-[100] md:block"
+                  onMouseEnter={() => {
+                    if (window.innerWidth >= 768) {
+                      setHoveredNav(item.title);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (window.innerWidth >= 768) {
+                      setHoveredNav(null);
+                    }
+                  }}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div className="bg-white border border-black shadow-lg min-w-[200px]">
                     <div className="py-2">
