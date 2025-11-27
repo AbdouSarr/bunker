@@ -197,7 +197,7 @@ export default function Product() {
       <div className="pt-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
           {/* Left Column - Full Height Image Gallery - Exact Balenciaga */}
-          <div className="relative bg-white lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)]">
+          <div className="relative bg-white lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:border-r border-black">
             {/* Save Item Button - Top Right Corner */}
             <button
               onClick={() => {
@@ -363,16 +363,16 @@ export default function Product() {
 
           {/* Right Column - Product Info - Exact Balenciaga Layout with Clear Spacing */}
           <div className="bg-white p-6 lg:p-10 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:overflow-y-auto">
-            <div className="max-w-lg mx-auto lg:mx-0 space-y-6">
+            <div className="max-w-lg mx-auto lg:mx-0 space-y-8 pt-8 lg:pt-12">
               {/* Product Title - Clear and Spaced */}
-              <div>
+              <div className="pt-4">
                 <h1 className="text-2xl md:text-3xl font-normal uppercase tracking-wider text-black leading-tight">
                   {title}
                 </h1>
               </div>
 
               {/* Price - Clear and Spaced */}
-              <div>
+              <div className="pt-2">
                 <ProductPrice
                   price={selectedVariant?.price}
                   compareAtPrice={selectedVariant?.compareAtPrice}
@@ -381,7 +381,7 @@ export default function Product() {
 
               {/* Product Description - Clear and Spaced */}
               {descriptionHtml && (
-                <div className="text-xs uppercase tracking-wider text-black leading-relaxed">
+                <div className="text-xs uppercase tracking-wider text-black leading-relaxed pt-4">
                   <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
                 </div>
               )}
