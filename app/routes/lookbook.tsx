@@ -279,10 +279,8 @@ export default function Lookbook() {
                 Thank you Mo, Abdou, Ely, Rui & Pong, Jordan, and everyone who has shed light and helped me take the next step. You know who you are. The journey is only just beginning.
               </p>
               
-              <div className="pt-8 md:pt-12 border-t border-black mt-12 md:mt-16">
-                <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-black/40 font-light">
-                  bunker
-                </p>
+              <div className="pt-8 md:pt-12 mt-12 md:mt-16">
+                bunker
               </div>
             </div>
           </div>
